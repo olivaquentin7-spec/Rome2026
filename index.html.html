@@ -1,0 +1,2545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rome 2026 — Dashboard Entraînement</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080810;
+  --s1: #0f0f1a;
+  --s2: #161625;
+  --s3: #1e1e30;
+  --border: #252538;
+  --text: #e2e2f0;
+  --muted: #6060a0;
+  --dim: #3a3a60;
+  --accent: #ff4422;
+  --gold: #f5a623;
+  --blue: #3b82f6;
+  --green: #10b981;
+  --purple: #a855f7;
+  --cyan: #06b6d4;
+  --orange: #f97316;
+  --pink: #ec4899;
+  --red: #ef4444;
+  --lm: #22c55e;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ── HEADER ── */
+.app-header{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(8,8,16,0.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:0;
+  height:56px;
+}
+.logo{
+  padding:0 20px;display:flex;align-items:center;gap:10px;
+  border-right:1px solid var(--border);height:100%;flex-shrink:0;
+}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--text);}
+.logo-sub{font-size:10px;color:var(--accent);font-family:'DM Mono',monospace;letter-spacing:1px;}
+.nav-tabs{display:flex;height:100%;overflow-x:auto;flex:1;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{
+  display:flex;align-items:center;gap:6px;padding:0 18px;
+  border:none;background:none;color:var(--muted);
+  font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .2s;white-space:nowrap;height:100%;
+}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--text);border-bottom-color:var(--accent);}
+.nav-tab .tab-icon{font-size:15px;}
+.header-right{
+  padding:0 16px;display:flex;align-items:center;gap:10px;
+  border-left:1px solid var(--border);height:100%;flex-shrink:0;
+}
+.progress-chip{
+  display:flex;align-items:center;gap:6px;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:20px;padding:4px 12px;font-size:11px;
+  font-family:'DM Mono',monospace;
+}
+.progress-chip span{color:var(--accent);font-weight:600;}
+
+/* ── MAIN ── */
+.main{margin-top:56px;padding:24px;max-width:1600px;margin-left:auto;margin-right:auto;}
+.view{display:none;}
+.view.active{display:block;}
+
+/* ── PAGE TITLE ── */
+.page-title{
+  font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:2px;
+  line-height:1;margin-bottom:4px;
+}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--s1);border:1px solid var(--border);border-radius:6px;
+  padding:20px;
+}
+.card-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;
+  text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);
+  margin-bottom:12px;
+}
+
+/* ── GRID UTILS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+@media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:1fr 1fr;}.grid-2{grid-template-columns:1fr;}}
+
+/* ── STAT BOXES ── */
+.stat-box{
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;
+  padding:16px;
+}
+.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;color:var(--text);}
+.stat-val.accent{color:var(--accent);}
+.stat-val.gold{color:var(--gold);}
+.stat-val.blue{color:var(--blue);}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* ── PROGRESS BAR ── */
+.prog-wrap{background:var(--s3);border-radius:2px;height:4px;overflow:hidden;margin-top:6px;}
+.prog-bar{height:100%;border-radius:2px;background:var(--accent);transition:width .8s ease;}
+
+/* ── TAGS ── */
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.5px;
+  text-transform:uppercase;padding:2px 8px;border-radius:2px;}
+.tag-charge{background:rgba(255,68,34,.15);color:var(--accent);border:1px solid rgba(255,68,34,.3);}
+.tag-recup{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3);}
+.tag-peak{background:rgba(245,166,35,.15);color:var(--gold);border:1px solid rgba(245,166,35,.3);}
+.tag-affutage{background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.3);}
+.tag-race{background:rgba(255,68,34,.3);color:#fff;border:1px solid var(--accent);}
+
+/* ══════════════════════════════════════════════════
+   PLANNING VIEW
+══════════════════════════════════════════════════ */
+.planning-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px;}
+.bloc-filter{
+  display:flex;gap:4px;background:var(--s2);border:1px solid var(--border);
+  border-radius:4px;padding:4px;
+}
+.bloc-btn{
+  padding:5px 14px;border:none;background:none;color:var(--muted);
+  font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;border-radius:2px;transition:all .15s;
+}
+.bloc-btn.active{background:var(--accent);color:#fff;}
+.week-search{
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;
+  padding:6px 12px;color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;
+  outline:none;
+}
+.week-search::placeholder{color:var(--muted);}
+
+.weeks-grid{display:flex;flex-direction:column;gap:8px;}
+.week-row{
+  background:var(--s1);border:1px solid var(--border);border-radius:6px;
+  overflow:hidden;transition:border-color .2s;
+}
+.week-row:hover{border-color:var(--dim);}
+.week-header{
+  display:flex;align-items:center;gap:12px;padding:10px 16px;
+  cursor:pointer;user-select:none;
+}
+.week-num{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;min-width:48px;
+  line-height:1;
+}
+.week-info{flex:1;}
+.week-title-text{font-size:13px;font-weight:600;}
+.week-meta{display:flex;gap:8px;align-items:center;margin-top:3px;flex-wrap:wrap;}
+.week-toggle{color:var(--muted);transition:transform .2s;font-size:12px;}
+.week-row.open .week-toggle{transform:rotate(180deg);}
+
+.week-body{display:none;border-top:1px solid var(--border);}
+.week-row.open .week-body{display:block;}
+
+.days-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  border-bottom:1px solid var(--border);
+}
+.day-col{padding:12px 10px;border-right:1px solid var(--border);min-height:100px;}
+.day-col:last-child{border-right:none;}
+.day-col.weekend{background:rgba(0,0,0,.15);}
+.day-label{
+  font-size:9px;text-transform:uppercase;letter-spacing:1px;
+  color:var(--muted);font-weight:700;margin-bottom:8px;
+  font-family:'Barlow Condensed',sans-serif;
+}
+.session-entry{
+  margin-bottom:8px;padding:6px 8px;border-radius:3px;
+  border-left:2px solid var(--border);background:var(--s2);
+  cursor:pointer;transition:all .15s;
+}
+.session-entry:hover{transform:translateX(2px);}
+.session-entry.done{opacity:.5;}
+.session-entry.done .session-act::after{content:" ✓";color:var(--green);}
+.session-slot{
+  font-size:9px;font-family:'DM Mono',monospace;
+  color:var(--muted);margin-bottom:3px;
+}
+.session-act{font-size:11px;font-weight:700;margin-bottom:2px;}
+.session-det{font-size:10px;color:var(--muted);line-height:1.4;}
+
+.week-note-bar{
+  padding:8px 16px;background:rgba(245,166,35,.05);
+  border-top:1px solid rgba(245,166,35,.15);
+  font-size:11px;color:var(--gold);
+}
+
+/* Séance checked */
+.check-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  background:none;border:1px solid var(--border);border-radius:2px;
+  color:var(--muted);font-size:10px;padding:2px 6px;cursor:pointer;
+  transition:all .15s;margin-top:4px;font-family:'Barlow',sans-serif;
+}
+.check-btn:hover{border-color:var(--green);color:var(--green);}
+.check-btn.checked{background:rgba(16,185,129,.1);border-color:var(--green);color:var(--green);}
+
+/* Summary bar */
+.week-summary{
+  display:flex;gap:16px;padding:10px 16px;flex-wrap:wrap;align-items:center;
+  background:var(--s2);
+}
+.week-summary-item{font-size:11px;color:var(--muted);}
+.week-summary-item b{color:var(--text);}
+
+/* ══════════════════════════════════════════════════
+   SALLE VIEW
+══════════════════════════════════════════════════ */
+.salle-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px;}
+.salle-tab{
+  padding:10px 20px;border:none;background:none;color:var(--muted);
+  font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;
+}
+.salle-tab.active{color:var(--text);border-bottom-color:var(--purple);}
+
+.exo-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px;}
+.exo-table th{
+  text-align:left;padding:8px 12px;background:var(--s3);
+  color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.5px;
+  text-transform:uppercase;border-bottom:1px solid var(--border);
+}
+.exo-table td{padding:10px 12px;border-bottom:1px solid rgba(37,37,56,.5);}
+.exo-table tr:hover td{background:rgba(255,255,255,.02);}
+.exo-name{font-weight:600;}
+.exo-note{font-size:11px;color:var(--muted);margin-top:2px;}
+.sets-badge{
+  display:inline-block;background:rgba(255,68,34,.1);color:var(--accent);
+  border:1px solid rgba(255,68,34,.2);border-radius:2px;
+  padding:2px 8px;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;
+}
+.reps-badge{
+  display:inline-block;background:rgba(245,166,35,.1);color:var(--gold);
+  border:1px solid rgba(245,166,35,.2);border-radius:2px;
+  padding:2px 8px;font-family:'DM Mono',monospace;font-size:11px;
+}
+.recup-badge{
+  display:inline-block;background:rgba(59,130,246,.1);color:var(--blue);
+  border:1px solid rgba(59,130,246,.2);border-radius:2px;
+  padding:2px 8px;font-family:'DM Mono',monospace;font-size:11px;
+}
+
+.salle-section{margin-bottom:32px;}
+.salle-section-title{
+  display:flex;align-items:center;gap:12px;
+  font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;
+  margin-bottom:6px;
+}
+.salle-section-sub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+.salle-tip{
+  margin-top:12px;padding:10px 14px;
+  background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.2);
+  border-radius:4px;font-size:12px;color:var(--gold);line-height:1.6;
+}
+
+/* Calendar bloc */
+.bloc-timeline{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;
+}
+.bloc-card-sm{
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:14px;
+}
+.bloc-card-sm h4{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px;}
+.bloc-card-sm p{font-size:11px;color:var(--muted);line-height:1.5;}
+
+/* ══════════════════════════════════════════════════
+   COURSE VIEW
+══════════════════════════════════════════════════ */
+.allure-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px;}
+.allure-card{
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;
+  padding:14px;position:relative;overflow:hidden;
+}
+.allure-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+}
+.z1::before{background:#6366f1;} .z2::before{background:var(--blue);}
+.z3::before{background:var(--green);} .z4::before{background:var(--gold);}
+.z5::before{background:var(--accent);}
+.allure-zone{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:4px;}
+.allure-name{font-size:12px;font-weight:700;margin-bottom:8px;}
+.allure-speed{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;margin-bottom:4px;}
+.allure-sub{font-size:10px;color:var(--muted);}
+
+.splits-table{width:100%;border-collapse:collapse;font-size:13px;}
+.splits-table td{padding:8px 12px;border-bottom:1px solid rgba(37,37,56,.5);}
+.splits-table tr:last-child td{background:rgba(255,68,34,.05);color:var(--accent);font-weight:600;}
+
+.course-types{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.course-type-card{
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:16px;
+}
+.course-type-title{font-weight:700;font-size:13px;margin-bottom:6px;}
+.course-type-desc{font-size:11px;color:var(--muted);line-height:1.6;}
+
+/* Courses test */
+.test-races{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.test-race{
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;
+  padding:18px;position:relative;overflow:hidden;
+}
+.test-race::after{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+}
+.test-race.t1::after{background:var(--blue);}
+.test-race.t2::after{background:var(--green);}
+.test-race.t3::after{background:var(--gold);}
+.test-race.t4::after{background:var(--accent);}
+.test-date{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;}
+.test-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px;}
+.test-obj{font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:6px;}
+.test-interp{font-size:11px;color:var(--muted);line-height:1.6;}
+
+/* ══════════════════════════════════════════════════
+   AUTRES SPORTS VIEW
+══════════════════════════════════════════════════ */
+.sport-card{
+  background:var(--s2);border:1px solid var(--border);border-radius:6px;
+  padding:20px;margin-bottom:16px;
+}
+.sport-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.sport-icon{font-size:28px;}
+.sport-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;}
+.sport-freq{font-size:11px;color:var(--muted);}
+.sport-sessions{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.sport-session{
+  background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:12px;
+}
+.sport-session-name{font-size:12px;font-weight:700;margin-bottom:4px;}
+.sport-session-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+
+/* ══════════════════════════════════════════════════
+   NUTRITION VIEW
+══════════════════════════════════════════════════ */
+.nutri-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px;}
+.nutri-tab{
+  padding:10px 20px;border:none;background:none;color:var(--muted);
+  font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;
+}
+.nutri-tab.active{color:var(--text);border-bottom-color:var(--green);}
+.nutri-view{display:none;}
+.nutri-view.active{display:block;}
+
+.nutri-hero{
+  background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(59,130,246,.05));
+  border:1px solid rgba(16,185,129,.2);border-radius:6px;
+  padding:24px;margin-bottom:24px;
+}
+.nutri-hero h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;margin-bottom:8px;}
+.nutri-hero p{font-size:13px;color:var(--muted);line-height:1.7;max-width:700px;}
+
+.nutri-macros{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.macro-card{
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;
+}
+.macro-icon{font-size:24px;margin-bottom:8px;}
+.macro-name{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
+.macro-val{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;margin-bottom:4px;}
+.macro-sub{font-size:10px;color:var(--muted);}
+
+.meal-plan{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:24px;}
+.meal-row{
+  display:grid;grid-template-columns:120px 1fr 180px;gap:0;
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;overflow:hidden;
+}
+.meal-time{
+  padding:12px 14px;background:var(--s3);
+  font-family:'DM Mono',monospace;font-size:12px;
+  border-right:1px solid var(--border);display:flex;align-items:center;
+}
+.meal-content{padding:12px 14px;}
+.meal-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+.meal-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+.meal-macro{
+  padding:12px 14px;border-left:1px solid var(--border);
+  display:flex;flex-direction:column;justify-content:center;
+  font-size:11px;color:var(--muted);
+}
+.meal-macro span{color:var(--text);}
+
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px;}
+.product-card{
+  background:var(--s2);border:1px solid var(--border);border-radius:6px;
+  padding:18px;position:relative;overflow:hidden;
+}
+.product-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+}
+.brand-ta::before{background:linear-gradient(90deg,#ff4422,#f5a623);}
+.brand-over::before{background:linear-gradient(90deg,#3b82f6,#06b6d4);}
+.brand-nutri::before{background:linear-gradient(90deg,#10b981,#a855f7);}
+.product-brand{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px;}
+.product-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+.product-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+.product-when{
+  font-size:11px;padding:6px 10px;
+  background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);
+  border-radius:3px;color:var(--green);
+}
+.product-dose{
+  margin-top:8px;font-size:11px;color:var(--gold);
+  font-family:'DM Mono',monospace;
+}
+
+/* Complement section */
+.compl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+.compl-card{
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:16px;
+}
+.compl-name{font-weight:700;font-size:13px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.compl-badge{
+  font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;
+  background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.3);
+}
+.compl-product{font-size:12px;color:var(--cyan);margin-bottom:4px;}
+.compl-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+.compl-dose{font-size:11px;font-family:'DM Mono',monospace;color:var(--gold);}
+.compl-timing{font-size:10px;color:var(--muted);margin-top:4px;}
+
+/* Nutrition course */
+.race-nutri{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:10px;margin-bottom:20px;
+}
+.race-nutri-step{
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:14px;
+  position:relative;
+}
+.rns-km{
+  font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;
+  color:var(--accent);margin-bottom:4px;
+}
+.rns-act{font-size:12px;font-weight:600;margin-bottom:4px;}
+.rns-prod{font-size:11px;color:var(--cyan);margin-bottom:4px;}
+.rns-note{font-size:10px;color:var(--muted);}
+
+/* ══════════════════════════════════════════════════
+   DASHBOARD VIEW
+══════════════════════════════════════════════════ */
+.dash-top{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px;}
+.race-countdown{
+  background:linear-gradient(135deg,rgba(255,68,34,.12),rgba(245,166,35,.05));
+  border:1px solid rgba(255,68,34,.25);border-radius:6px;padding:24px;
+  position:relative;overflow:hidden;
+}
+.race-countdown::before{
+  content:'🏛️';position:absolute;right:-10px;bottom:-20px;
+  font-size:120px;opacity:.06;
+}
+.countdown-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px;}
+.countdown-days{font-family:'Bebas Neue',sans-serif;font-size:72px;line-height:1;color:var(--accent);}
+.countdown-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+.next-session{
+  background:var(--s1);border:1px solid var(--border);border-radius:6px;padding:24px;
+}
+.next-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px;}
+.next-day{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--text);}
+.next-sessions-list{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
+.next-s-item{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  background:var(--s2);border-radius:3px;
+}
+.next-s-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.next-s-name{font-size:12px;font-weight:600;flex:1;}
+.next-s-slot{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+.global-progress{
+  background:var(--s1);border:1px solid var(--border);border-radius:6px;
+  padding:20px;margin-bottom:20px;
+}
+.gp-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;font-weight:600;}
+.gp-blocs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.gp-bloc{background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:12px;}
+.gp-bloc-name{font-size:11px;font-weight:600;margin-bottom:4px;}
+.gp-bloc-weeks{font-size:10px;color:var(--muted);margin-bottom:8px;}
+.gp-bloc-bar{background:var(--s3);height:3px;border-radius:2px;overflow:hidden;}
+.gp-bloc-fill{height:100%;border-radius:2px;transition:width .8s ease;}
+
+.recent-done{
+  background:var(--s1);border:1px solid var(--border);border-radius:6px;padding:20px;
+}
+.rd-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;font-weight:600;}
+.rd-list{display:flex;flex-direction:column;gap:6px;}
+.rd-item{
+  display:flex;align-items:center;gap:10px;padding:8px 12px;
+  background:var(--s2);border-radius:3px;font-size:12px;
+}
+.rd-check{color:var(--green);font-size:14px;}
+.rd-name{flex:1;font-weight:500;}
+.rd-when{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+.rd-empty{font-size:12px;color:var(--muted);text-align:center;padding:20px;}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.view.active{animation:fadeIn .2s ease;}
+.week-body{animation:fadeIn .15s ease;}
+
+/* Responsive */
+@media(max-width:768px){
+  .days-grid{grid-template-columns:1fr;}
+  .allure-grid{grid-template-columns:repeat(3,1fr);}
+  .test-races{grid-template-columns:1fr;}
+  .nutri-macros{grid-template-columns:repeat(2,1fr);}
+  .dash-top{grid-template-columns:1fr;}
+  .meal-row{grid-template-columns:1fr;}
+  .meal-time{border-right:none;border-bottom:1px solid var(--border);}
+  .meal-macro{border-left:none;border-top:1px solid var(--border);}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="logo">
+    <div>
+      <div class="logo-text">ROME 2026</div>
+      <div class="logo-sub">18 OCT · 1H30</div>
+    </div>
+  </div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
+      <span class="tab-icon">📊</span> Dashboard
+    </button>
+    <button class="nav-tab" onclick="switchTab('planning')" data-tab="planning">
+      <span class="tab-icon">📅</span> Planning 25 semaines
+    </button>
+    <button class="nav-tab" onclick="switchTab('salle')" data-tab="salle">
+      <span class="tab-icon">🏋️</span> Salle de sport
+    </button>
+    <button class="nav-tab" onclick="switchTab('course')" data-tab="course">
+      <span class="tab-icon">🏃</span> Course à pied
+    </button>
+    <button class="nav-tab" onclick="switchTab('sports')" data-tab="sports">
+      <span class="tab-icon">🎾</span> Autres sports
+    </button>
+    <button class="nav-tab" onclick="switchTab('nutrition')" data-tab="nutrition">
+      <span class="tab-icon">🥗</span> Nutrition
+    </button>
+  </nav>
+  <div class="header-right">
+    <div class="progress-chip" id="globalChip">
+      <span id="globalPct">0%</span> complété
+    </div>
+  </div>
+</header>
+
+<div class="main" id="mainContent">
+
+<!-- ══════════════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════════════ -->
+<div id="view-dashboard" class="view active">
+  <div class="page-title">TABLEAU DE BORD</div>
+  <div class="page-sub">Semi-Marathon de Rome — 18 Octobre 2026 · Objectif 1h30'00"</div>
+
+  <div class="dash-top">
+    <div class="race-countdown">
+      <div class="countdown-label">Jours avant Rome</div>
+      <div class="countdown-days" id="countdownDays">—</div>
+      <div class="countdown-sub">Semi-Marathon de Rome · 18 Octobre 2026</div>
+      <div style="margin-top:16px;display:flex;gap:20px;flex-wrap:wrap;">
+        <div><div style="font-size:10px;color:var(--muted);margin-bottom:2px;">SEMAINE EN COURS</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;" id="currentWeekNum">—</div></div>
+        <div><div style="font-size:10px;color:var(--muted);margin-bottom:2px;">BLOC ACTUEL</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;" id="currentBloc">—</div></div>
+        <div><div style="font-size:10px;color:var(--muted);margin-bottom:2px;">OBJECTIF ALLURE</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);">4'15"/km</div></div>
+      </div>
+    </div>
+    <div class="next-session">
+      <div class="next-label">Prochaines séances</div>
+      <div class="next-day" id="nextDay">—</div>
+      <div class="next-sessions-list" id="nextSessionsList"></div>
+    </div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:20px;">
+    <div class="stat-box">
+      <div class="stat-label">Séances complétées</div>
+      <div class="stat-val accent" id="doneCount">0</div>
+      <div class="stat-sub" id="totalCount">/ 0 total</div>
+      <div class="prog-wrap"><div class="prog-bar" id="doneBar" style="width:0%"></div></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Semaines validées</div>
+      <div class="stat-val gold" id="weeksValidated">0</div>
+      <div class="stat-sub">/ 25 semaines</div>
+      <div class="prog-wrap"><div class="prog-bar" style="background:var(--gold);" id="weeksBar"></div></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Séances salle</div>
+      <div class="stat-val blue" id="salleDone">0</div>
+      <div class="stat-sub" id="salleTotal">/ 0 prévues</div>
+      <div class="prog-wrap"><div class="prog-bar" style="background:var(--blue);" id="salleBar"></div></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Km course estimés</div>
+      <div class="stat-val" style="color:var(--green);" id="kmDone">0</div>
+      <div class="stat-sub">km parcourus (estimé)</div>
+      <div class="prog-wrap"><div class="prog-bar" style="background:var(--green);" id="kmBar"></div></div>
+    </div>
+  </div>
+
+  <div class="global-progress">
+    <div class="gp-title">Progression par bloc</div>
+    <div class="gp-blocs">
+      <div class="gp-bloc">
+        <div class="gp-bloc-name" style="color:var(--blue)">BLOC 1 — Fondations</div>
+        <div class="gp-bloc-weeks">Sem 1–6 · Avr–Mai 2026</div>
+        <div class="gp-bloc-bar"><div class="gp-bloc-fill" id="b1bar" style="background:var(--blue);width:0%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;" id="b1pct">0%</div>
+      </div>
+      <div class="gp-bloc">
+        <div class="gp-bloc-name" style="color:var(--green)">BLOC 2 — Développement</div>
+        <div class="gp-bloc-weeks">Sem 7–14 · Juin–Juil 2026</div>
+        <div class="gp-bloc-bar"><div class="gp-bloc-fill" id="b2bar" style="background:var(--green);width:0%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;" id="b2pct">0%</div>
+      </div>
+      <div class="gp-bloc">
+        <div class="gp-bloc-name" style="color:var(--gold)">BLOC 3 — Spécificité</div>
+        <div class="gp-bloc-weeks">Sem 15–20 · Août–Sept 2026</div>
+        <div class="gp-bloc-bar"><div class="gp-bloc-fill" id="b3bar" style="background:var(--gold);width:0%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;" id="b3pct">0%</div>
+      </div>
+      <div class="gp-bloc">
+        <div class="gp-bloc-name" style="color:var(--accent)">BLOC 4 — Affûtage</div>
+        <div class="gp-bloc-weeks">Sem 21–25 · Octobre 2026</div>
+        <div class="gp-bloc-bar"><div class="gp-bloc-fill" id="b4bar" style="background:var(--accent);width:0%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;" id="b4pct">0%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recent-done">
+    <div class="rd-title">Dernières séances cochées</div>
+    <div class="rd-list" id="recentDone">
+      <div class="rd-empty">Aucune séance cochée pour l'instant.<br>Va dans le Planning pour valider tes séances !</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PLANNING
+══════════════════════════════════════════════ -->
+<div id="view-planning" class="view">
+  <div class="page-title">PLANNING 25 SEMAINES</div>
+  <div class="page-sub">Coche chaque séance terminée pour suivre ta progression · Week-ends : sortie longue uniquement</div>
+
+  <div class="planning-controls">
+    <div class="bloc-filter">
+      <button class="bloc-btn active" onclick="filterBloc(0,this)">Tout</button>
+      <button class="bloc-btn" onclick="filterBloc(1,this)" style="color:#3b82f6">Bloc 1</button>
+      <button class="bloc-btn" onclick="filterBloc(2,this)" style="color:#10b981">Bloc 2</button>
+      <button class="bloc-btn" onclick="filterBloc(3,this)" style="color:#f5a623">Bloc 3</button>
+      <button class="bloc-btn" onclick="filterBloc(4,this)" style="color:#ff4422">Bloc 4</button>
+    </div>
+    <input type="text" class="week-search" placeholder="Rechercher une séance..." oninput="searchWeeks(this.value)">
+    <button class="bloc-btn" onclick="expandAll()" style="background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:6px 14px;">Tout ouvrir</button>
+    <button class="bloc-btn" onclick="collapseAll()" style="background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:6px 14px;">Tout fermer</button>
+  </div>
+
+  <div class="weeks-grid" id="weeksGrid"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SALLE
+══════════════════════════════════════════════ -->
+<div id="view-salle" class="view">
+  <div class="page-title">SALLE DE SPORT</div>
+  <div class="page-sub">4 séances/semaine · Lun/Mar/Jeu/Ven de 7h à 8h · ~55 min par séance</div>
+
+  <div class="bloc-timeline">
+    <div class="bloc-card-sm" style="border-top:2px solid var(--blue)">
+      <h4 style="color:var(--blue)">Bloc 1–2</h4>
+      <p>4 séances/sem<br>Jambes A+B · Push · Pull</p>
+    </div>
+    <div class="bloc-card-sm" style="border-top:2px solid var(--green)">
+      <h4 style="color:var(--green)">Bloc 2–3</h4>
+      <p>3–4 séances/sem<br>Jambes Entretien · Push · Pull · Gainage</p>
+    </div>
+    <div class="bloc-card-sm" style="border-top:2px solid var(--gold)">
+      <h4 style="color:var(--gold)">Bloc 3–4</h4>
+      <p>2–3 séances/sem<br>Réduction progressive</p>
+    </div>
+    <div class="bloc-card-sm" style="border-top:2px solid var(--accent)">
+      <h4 style="color:var(--accent)">Bloc 4 final</h4>
+      <p>Stop jambes<br>1 séance haut corps max</p>
+    </div>
+  </div>
+
+  <div class="salle-tabs">
+    <button class="salle-tab active" onclick="switchSalleTab('jambes-course')">🦵 Jambes Course</button>
+    <button class="salle-tab" onclick="switchSalleTab('jambes-muscu')">🦵 Jambes Muscu</button>
+    <button class="salle-tab" onclick="switchSalleTab('entretien')">🦵 Entretien Bloc 3</button>
+    <button class="salle-tab" onclick="switchSalleTab('push')">💪 Push</button>
+    <button class="salle-tab" onclick="switchSalleTab('pull')">💪 Pull</button>
+    <button class="salle-tab" onclick="switchSalleTab('gainage')">💪 Gainage & Mobilité</button>
+  </div>
+
+  <div id="salle-jambes-course" class="salle-view">
+    <div class="salle-section">
+      <div class="salle-section-title"><span>🦵</span> <span style="color:var(--green)">JAMBES A — Renforcement Course à Pied</span></div>
+      <div class="salle-section-sub">Séance orientée <strong>transfert direct sur la foulée</strong> : travail unilatéral, chaîne postérieure, force fonctionnelle. Chaque exercice a un lien direct avec la course. Durée : ~55 min. Blocs 1–2 (2×/sem), Bloc 3 (1×/sem).</div>
+      <table class="exo-table">
+        <thead><tr><th>Exercice</th><th>Séries</th><th>Reps / Temps</th><th>Récup</th><th>Objectif running</th></tr></thead>
+        <tbody>
+          <tr><td><div class="exo-name">Échauffement — Escalier ou vélo</div><div class="exo-note">Monter progressivement en intensité</div></td><td>—</td><td class="reps-badge">8 min</td><td class="recup-badge">—</td><td style="font-size:11px;color:var(--muted)">Activation cardiovasculaire</td></tr>
+          <tr><td><div class="exo-name">Squat bulgare (pied arrière surélevé)</div><div class="exo-note">Haltères ou barre — charge progressive semaine après semaine</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">12/jambe</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Fessiers + quadriceps — moteur de la poussée</td></tr>
+          <tr><td><div class="exo-name">Fentes marchées avec haltères</div><div class="exo-note">Amplitude maximale — gainage actif du tronc</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">15 pas</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Simulation de la foulée — gainage dynamique</td></tr>
+          <tr><td><div class="exo-name">Step-up sur box + haltères</div><div class="exo-note">Box à hauteur genou — poussée complète en haut</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">12/jambe</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Poussée unilatérale spécifique course</td></tr>
+          <tr><td><div class="exo-name">Good morning barre</div><div class="exo-note">Charge légère — sensation d'étirement des ischio</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">12</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Chaîne postérieure — prévention blessure</td></tr>
+          <tr><td><div class="exo-name">Mollets debout lestés (1 jambe)</div><div class="exo-note">Descente lente (3 sec) — force excentrique clé</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">15/jambe</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Prévention tendinite Achille — amorti</td></tr>
+          <tr><td><div class="exo-name">Pont fessier unilatéral</div><div class="exo-note">Maintenir le bassin horizontal tout le long</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">15/jambe</span></td><td><span class="recup-badge">30"</span></td><td style="font-size:11px;color:var(--muted)">Stabilité du bassin — évite les déséquilibres</td></tr>
+          <tr><td><div class="exo-name">Gainage planche avant</div><div class="exo-note">Corps aligné tête-talon — respiration abdominale</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">45–60"</span></td><td><span class="recup-badge">30"</span></td><td style="font-size:11px;color:var(--muted)">Stabilité tronc — économie de course</td></tr>
+          <tr><td><div class="exo-name">Gainage latéral + élévation jambe</div><div class="exo-note">Jambe top levée vers le haut — abducteurs</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">30"/côté</span></td><td><span class="recup-badge">20"</span></td><td style="font-size:11px;color:var(--muted)">Stabilité latérale bassin — IT band</td></tr>
+        </tbody>
+      </table>
+      <div class="salle-tip">💡 <strong>Pourquoi cette séance ?</strong> Chaque exercice transfère directement sur la foulée. Le squat bulgare et les fentes marchées reproduisent le geste de course en version lestée. Les mollets excentriques protègent ton tendon d'Achille — blessure n°1 des coureurs de semi. La progression de charge doit être régulière : +1–2 kg chaque semaine sur les exercices principaux.</div>
+    </div>
+  </div>
+
+  <div id="salle-jambes-muscu" class="salle-view" style="display:none">
+    <div class="salle-section">
+      <div class="salle-section-title"><span>🦵</span> <span style="color:var(--green)">JAMBES B — Développement Musculaire & Plyométrie</span></div>
+      <div class="salle-section-sub">Séance orientée <strong>puissance explosive et hypertrophie fonctionnelle</strong>. Développe la force réactive, le recrutement musculaire rapide et la tolérance à l'effort intense. Lien direct avec les séances de fractionné. Durée : ~55 min. Blocs 1–2 principalement.</div>
+      <table class="exo-table">
+        <thead><tr><th>Exercice</th><th>Séries</th><th>Reps / Temps</th><th>Récup</th><th>Objectif</th></tr></thead>
+        <tbody>
+          <tr><td><div class="exo-name">Échauffement — Vélo ou tapis lent</div><div class="exo-note">Montée progressive — mobilité articulaire 5 min ensuite</div></td><td>—</td><td class="reps-badge">8 min</td><td class="recup-badge">—</td><td style="font-size:11px;color:var(--muted)">Activation systémique</td></tr>
+          <tr><td><div class="exo-name">Sauts sur box (Box Jump)</div><div class="exo-note">Atterrissage silencieux — genoux fléchis — réception contrôlée</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">8–10</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Force explosive — cycle étirement-détente</td></tr>
+          <tr><td><div class="exo-name">Hack Squat (machine)</div><div class="exo-note">Amplitude complète — charge lourde progressive</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">10</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Développement quadriceps — force maximale</td></tr>
+          <tr><td><div class="exo-name">Fentes statiques avec haltères</div><div class="exo-note">Genou arrière effleure le sol — dos droit</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">10/jambe</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Force et hypertrophie jambes complètes</td></tr>
+          <tr><td><div class="exo-name">Leg Curl (couché machine)</div><div class="exo-note">Contraction maximale en haut — descente lente</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">12</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Ischio-jambiers — équilibre quadri/ischio</td></tr>
+          <tr><td><div class="exo-name">Hip Thrust barre</div><div class="exo-note">Barre sur les hanches — poussée explosive — contraction maximale en haut</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">12</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Fessiers — moteur principal de la foulée</td></tr>
+          <tr><td><div class="exo-name">Squat sauté leste (léger)</div><div class="exo-note">Gilet lesté 5–10 kg max — descente contrôlée + explosion</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">10</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Vitesse de déploiement — force réactive</td></tr>
+          <tr><td><div class="exo-name">Mollets debout lestés (bilatéral)</div><div class="exo-note">Amplitude maximale — descente 3 sec</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">18</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Volume mollets — résistance longue durée</td></tr>
+          <tr><td><div class="exo-name">Mollets assis machine</div><div class="exo-note">Cible le soléaire — important pour l'endurance</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">15</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Soléaire — endurance longue distance</td></tr>
+          <tr><td><div class="exo-name">Crunch + Crunch Haut enchaîné</div><div class="exo-note">Concentrique contrôlé — pas d'élan</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">15+15</span></td><td><span class="recup-badge">30"</span></td><td style="font-size:11px;color:var(--muted)">Renfort abdominal — gainage dynamique</td></tr>
+        </tbody>
+      </table>
+      <div class="salle-tip">💡 <strong>Différence avec la séance A :</strong> Cette séance vise le <em>développement musculaire pur</em> et la <em>puissance explosive</em>. Le hack squat lourd, le leg curl et les mollets ×8 séries construisent le volume musculaire. Les box jumps et squats sautés développent la force réactive. Ces deux composantes se complètent : la séance A transfère sur la foulée, la séance B construit la puissance brute.</div>
+    </div>
+  </div>
+
+  <div id="salle-entretien" class="salle-view" style="display:none">
+    <div class="salle-section">
+      <div class="salle-section-title"><span>🦵</span> <span style="color:var(--gold)">JAMBES ENTRETIEN — Bloc 3 (1×/semaine)</span></div>
+      <div class="salle-section-sub">Séance <strong>allégée de maintien</strong> pour ne pas perdre les acquis du Bloc 2 tout en préservant les jambes pour les séances de course intense. Durée : ~35 min. Jamais la veille d'un fractionné ou d'une sortie longue.</div>
+      <table class="exo-table">
+        <thead><tr><th>Exercice</th><th>Séries</th><th>Reps</th><th>Récup</th></tr></thead>
+        <tbody>
+          <tr><td><div class="exo-name">Squat bulgare</div><div class="exo-note">Charge –20% vs Bloc 2 — technique parfaite</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">10/jambe</span></td><td><span class="recup-badge">1'30</span></td></tr>
+          <tr><td><div class="exo-name">Hip thrust barre</div><div class="exo-note">Charge maintenue — contraction maximale</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">12</span></td><td><span class="recup-badge">1'</span></td></tr>
+          <tr><td><div class="exo-name">Mollets debout lestés</div><div class="exo-note">Volume réduit — qualité > quantité</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">20</span></td><td><span class="recup-badge">1'</span></td></tr>
+          <tr><td><div class="exo-name">Gainage planche</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">45"</span></td><td><span class="recup-badge">30"</span></td></tr>
+          <tr><td><div class="exo-name">Pont fessier unilatéral</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">15</span></td><td><span class="recup-badge">30"</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="salle-push" class="salle-view" style="display:none">
+    <div class="salle-section">
+      <div class="salle-section-title"><span>💪</span> <span style="color:var(--purple)">PUSH — Pectoraux, Triceps, Épaules ant.</span></div>
+      <div class="salle-section-sub">Séance <strong>conservée de ton programme existant</strong> — bien construite et adaptée. Durée : ~55 min. Blocs 1 à 4 (réduit progressivement en affûtage).</div>
+      <table class="exo-table">
+        <thead><tr><th>Exercice</th><th>Séries</th><th>Reps</th><th>Récup</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td><div class="exo-name">Échauffement — Vélo elliptique</div></td><td>—</td><td class="reps-badge">8 min</td><td class="recup-badge">—</td><td style="font-size:11px;color:var(--muted)"></td></tr>
+          <tr><td><div class="exo-name">Développé couché incliné (Incline Press)</div><div class="exo-note">Barre ou haltères — pectoraux haut</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">10</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Pectoraux haut — claviculaire</td></tr>
+          <tr><td><div class="exo-name">Développé couché plat (Supine Press)</div><div class="exo-note">Haltères ou barre — amplitude complète</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">10</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Pectoraux milieu — chef sternal</td></tr>
+          <tr><td><div class="exo-name">Pec Fly (écarté poulie ou haltères)</div><div class="exo-note">Étirement maximal en bas — contraction en haut</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">12</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Étirement pectoraux — finition</td></tr>
+          <tr><td><div class="exo-name">Dips (poids de corps ou leste)</div><div class="exo-note">Corps légèrement penché avant pour cibler les pec</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">10</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Triceps + bas pectoraux</td></tr>
+          <tr><td><div class="exo-name">Triceps Poulie Haute (corde)</div><div class="exo-note">Contraction maximale bras tendus — pas d'élan</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">12</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Isolation triceps</td></tr>
+          <tr><td><div class="exo-name">Gainage Face (planche avant)</div><div class="exo-note">Corps aligné — respiration abdominale profonde</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">45"</span></td><td><span class="recup-badge">30"</span></td><td style="font-size:11px;color:var(--muted)">Coordination bras-tronc</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="salle-pull" class="salle-view" style="display:none">
+    <div class="salle-section">
+      <div class="salle-section-title"><span>💪</span> <span style="color:var(--purple)">PULL — Dos, Biceps, Rhomboïdes</span></div>
+      <div class="salle-section-sub">Séance <strong>conservée de ton programme existant</strong>. Le travail de dos est important pour la posture en course — un dos fort = moins de fatigue sur les longues distances. Durée : ~55 min.</div>
+      <table class="exo-table">
+        <thead><tr><th>Exercice</th><th>Séries</th><th>Reps</th><th>Récup</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td><div class="exo-name">Échauffement — Vélo ou rameur</div></td><td>—</td><td class="reps-badge">8 min</td><td class="recup-badge">—</td><td style="font-size:11px;color:var(--muted)"></td></tr>
+          <tr><td><div class="exo-name">Lat Pull Down</div><div class="exo-note">Prise large — tirage jusqu'au menton</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">10</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Grand dorsal — traction verticale</td></tr>
+          <tr><td><div class="exo-name">Seated Row (tirage assis)</div><div class="exo-note">Coudes près du corps — scapulas en fin de mouvement</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">10</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Rhomboïdes + trapèzes moyen</td></tr>
+          <tr><td><div class="exo-name">Tirage Barre / Haltères (Bent-over row)</div><div class="exo-note">Dos plat — gainage lombaire actif pendant tout le mouvement</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">12</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Dos complet + gainage lombo</td></tr>
+          <tr><td><div class="exo-name">Curl Biceps Machine</div><div class="exo-note">Amplitude complète — pas de triche</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">10</span></td><td><span class="recup-badge">1'30</span></td><td style="font-size:11px;color:var(--muted)">Isolation biceps — chef long</td></tr>
+          <tr><td><div class="exo-name">Curl Biceps Poulie Barre</div><div class="exo-note">Supination complète — tension constante grâce à la poulie</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">12</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Biceps brachial + brachial ant.</td></tr>
+          <tr><td><div class="exo-name">Gainage Latéral</div><div class="exo-note">Corps aligné — hanche en l'air tout le temps</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">35"/côté</span></td><td><span class="recup-badge">30"</span></td><td style="font-size:11px;color:var(--muted)">Stabilité latérale — IT band</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="salle-gainage" class="salle-view" style="display:none">
+    <div class="salle-section">
+      <div class="salle-section-title"><span>💪</span> <span style="color:var(--purple)">GAINAGE & MOBILITÉ — Remplace séance Épaules</span></div>
+      <div class="salle-section-sub"><strong>La séance la plus utile pour le running</strong> de toutes tes séances haut du corps. Stabilité du tronc, mobilité des hanches, gainage anti-rotation — tout ce dont tu as besoin pour courir efficacement. La séance épaules classique a été supprimée car inutile pour la performance en course. Durée : ~45 min.</div>
+      <table class="exo-table">
+        <thead><tr><th>Exercice</th><th>Séries</th><th>Reps / Temps</th><th>Récup</th><th>Utilité running</th></tr></thead>
+        <tbody>
+          <tr><td><div class="exo-name">Mobilité articulaire (hanches, chevilles, colonne)</div></td><td>—</td><td class="reps-badge">8 min</td><td class="recup-badge">—</td><td style="font-size:11px;color:var(--muted)">Prévention blessure</td></tr>
+          <tr><td><div class="exo-name">Planche classique</div><div class="exo-note">Progression : +5" par semaine · Corps rigide comme une planche</div></td><td><span class="sets-badge">4</span></td><td><span class="reps-badge">1 min</span></td><td><span class="recup-badge">30"</span></td><td style="font-size:11px;color:var(--muted)">Stabilité tronc — économie de course</td></tr>
+          <tr><td><div class="exo-name">Planche latérale + élévation jambe</div><div class="exo-note">Jambe du dessus levée vers le haut en fin de position</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">30"/côté</span></td><td><span class="recup-badge">30"</span></td><td style="font-size:11px;color:var(--muted)">Abducteurs + IT band</td></tr>
+          <tr><td><div class="exo-name">Pallof Press anti-rotation</div><div class="exo-note">Poulie à hauteur nombril — résister à la rotation</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">12/côté</span></td><td><span class="recup-badge">45"</span></td><td style="font-size:11px;color:var(--muted)">Stabilité rotatoire — clé pour la foulée</td></tr>
+          <tr><td><div class="exo-name">Dead Bug</div><div class="exo-note">Dos plat au sol — bras et jambe opposés s'abaissent simultanément</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">10/côté</span></td><td><span class="recup-badge">45"</span></td><td style="font-size:11px;color:var(--muted)">Coordination bras-jambe opposés</td></tr>
+          <tr><td><div class="exo-name">Bird Dog</div><div class="exo-note">A quatre pattes — bras et jambe opposés tendus 3 sec</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">12/côté</span></td><td><span class="recup-badge">30"</span></td><td style="font-size:11px;color:var(--muted)">Lombaires + gainage profond</td></tr>
+          <tr><td><div class="exo-name">Shoulder Press léger (70% max)</div><div class="exo-note">Pas d'hypertrophie — maintien force et mobilité épaule</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">12</span></td><td><span class="recup-badge">1'</span></td><td style="font-size:11px;color:var(--muted)">Maintien bras en course</td></tr>
+          <tr><td><div class="exo-name">Face Pull poulie</div><div class="exo-note">Coudes hauts — rotation externe en fin de mouvement</div></td><td><span class="sets-badge">3</span></td><td><span class="reps-badge">15</span></td><td><span class="recup-badge">45"</span></td><td style="font-size:11px;color:var(--muted)">Coiffe rotateurs — prévention blessure épaule</td></tr>
+          <tr><td><div class="exo-name">Étirements mobilité hanches + ischio</div><div class="exo-note">Obligatoire en fin de séance — 10 min minimum</div></td><td>—</td><td class="reps-badge">10 min</td><td class="recup-badge">—</td><td style="font-size:11px;color:var(--muted)">Récup + amplitude de foulée</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     COURSE
+══════════════════════════════════════════════ -->
+<div id="view-course" class="view">
+  <div class="page-title">COURSE À PIED</div>
+  <div class="page-sub">3–4 séances/semaine · Sorties longues le week-end uniquement · Objectif allure 4'15"/km</div>
+
+  <div class="allure-grid">
+    <div class="allure-card z1">
+      <div class="allure-zone">ZONE 1</div>
+      <div class="allure-name" style="color:#6366f1">Récupération</div>
+      <div class="allure-speed" style="color:#6366f1">&gt;5'30"</div>
+      <div class="allure-sub">FC &lt;65% · Footing récup · Tu peux chanter</div>
+    </div>
+    <div class="allure-card z2">
+      <div class="allure-zone">ZONE 2</div>
+      <div class="allure-name" style="color:var(--blue)">Endurance fondamentale</div>
+      <div class="allure-speed" style="color:var(--blue)">5'00"–5'20"</div>
+      <div class="allure-sub">FC 65–75% · Sorties longues · Conversation aisée</div>
+    </div>
+    <div class="allure-card z3">
+      <div class="allure-zone">ZONE 3</div>
+      <div class="allure-name" style="color:var(--green)">Allure marathon</div>
+      <div class="allure-speed" style="color:var(--green)">4'35"–4'45"</div>
+      <div class="allure-sub">FC 75–82% · Finales de sortie longue</div>
+    </div>
+    <div class="allure-card z4" style="border-color:rgba(245,166,35,.3)">
+      <div class="allure-zone">ZONE 4 ★</div>
+      <div class="allure-name" style="color:var(--gold)">Allure semi cible</div>
+      <div class="allure-speed" style="color:var(--gold)">4'10"–4'20"</div>
+      <div class="allure-sub">FC 82–88% · Tempo · LA zone prioritaire</div>
+    </div>
+    <div class="allure-card z5">
+      <div class="allure-zone">ZONE 5</div>
+      <div class="allure-name" style="color:var(--accent)">VMA / Fractionné</div>
+      <div class="allure-speed" style="color:var(--accent)">&lt;3'55"</div>
+      <div class="allure-sub">FC &gt;90% · Intervalles · Inconfort maximal</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="card-title">Splits à 4'15"/km — Objectif Rome</div>
+      <table class="splits-table">
+        <tr><td style="color:var(--muted)">5 km</td><td style="font-family:'DM Mono',monospace">21'15"</td></tr>
+        <tr><td style="color:var(--muted)">10 km</td><td style="font-family:'DM Mono',monospace">42'30"</td></tr>
+        <tr><td style="color:var(--muted)">15 km</td><td style="font-family:'DM Mono',monospace">1h03'45"</td></tr>
+        <tr><td style="color:var(--muted)">21,1 km</td><td style="font-family:'DM Mono',monospace;color:var(--accent)">1h29'43" 🎯</td></tr>
+      </table>
+      <div style="margin-top:12px;padding:10px;background:rgba(245,166,35,.07);border-radius:3px;font-size:11px;color:var(--gold);">
+        <strong>Stratégie Rome :</strong> km 1–3 à 4'18"–4'20" · km 4–15 à 4'13"–4'15" · km 16–21 tout donner
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Règle des 80/20</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:12px;">80% de tes km se font en Z1–Z2 (facile), seulement 20% en Z4–Z5 (intense). C'est contre-intuitif mais scientifiquement prouvé pour les coureurs de fond.</div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <div style="flex:4;background:var(--blue);height:22px;border-radius:2px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:700;">80% — Zones 1–2</div>
+        <div style="flex:1;background:var(--accent);height:22px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">20% Z4–5</div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--muted);">Si tu ne peux pas parler pendant ta sortie longue, tu vas trop vite.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-title">Types de séances course</div>
+    <div class="course-types">
+      <div class="course-type-card" style="border-top:2px solid var(--accent)">
+        <div class="course-type-title" style="color:var(--accent)">🔴 Fractionné / VMA</div>
+        <div class="course-type-desc">Intervalles courts à moyens (400m–2000m) à &gt;90% FC max. Développe la VMA et la tolérance lactique. Ex: 5×1000m à 3'30"/km, récup 2'30" trot.</div>
+      </div>
+      <div class="course-type-card" style="border-top:2px solid var(--gold)">
+        <div class="course-type-title" style="color:var(--gold)">🟡 Tempo / Allure semi</div>
+        <div class="course-type-desc">Blocs continus à 4'10"–4'20"/km. Ancre l'allure cible dans les jambes. Séance clé : 12 km continus à 4'18"/km en S18.</div>
+      </div>
+      <div class="course-type-card" style="border-top:2px solid var(--orange)">
+        <div class="course-type-title" style="color:var(--orange)">🟠 Côtes</div>
+        <div class="course-type-desc">Répétitions en montée 5–8% de pente. Force spécifique running, recrutement musculaire explosif. Descente = récup complète. Ex: 10×200m côte à effort max.</div>
+      </div>
+      <div class="course-type-card" style="border-top:2px solid var(--gold)">
+        <div class="course-type-title" style="color:var(--gold)">🟡 Fartlek</div>
+        <div class="course-type-desc">Jeu d'allures sur terrain naturel. 1 min fort / 2 min lent, ou accélérations sur les montées. Développe la variabilité et la lecture de terrain.</div>
+      </div>
+      <div class="course-type-card" style="border-top:2px solid var(--blue)">
+        <div class="course-type-title" style="color:var(--blue)">🟢 Sortie longue</div>
+        <div class="course-type-desc">LA séance fondamentale. Z2 strict (5'00"–5'20"), parfois finales à allure semi. Développe l'endurance spécifique et les adaptations mitochondriales.</div>
+      </div>
+      <div class="course-type-card" style="border-top:2px solid var(--lm)">
+        <div class="course-type-title" style="color:var(--lm)">🌿 Trail</div>
+        <div class="course-type-desc">Sorties en nature avec D+ modéré à important. Travaille les appuis, la proprioception et la résistance mentale. Marcher les montées raides est normal.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Courses Tests & Objectifs</div>
+    <div class="test-races">
+      <div class="test-race t1">
+        <div class="test-date">SEMAINE 10 · JUIN 2026</div>
+        <div class="test-name">10 km — Test 1</div>
+        <div class="test-obj" style="color:var(--blue)">&lt; 46'00"</div>
+        <div class="test-interp">&lt;44' : en avance 🚀<br>44'–46' : dans les clous ✅<br>&gt;46' : intensifier les tempos ⚠️</div>
+      </div>
+      <div class="test-race t2">
+        <div class="test-date">SEMAINE 14 · FIN JUILLET 2026</div>
+        <div class="test-name">Semi-Marathon Test</div>
+        <div class="test-obj" style="color:var(--green)">1h40–1h42</div>
+        <div class="test-interp">&lt;1h38 : revoir objectif à la hausse 🔥<br>1h38–1h42 : 1h30 en vue ✅<br>&gt;1h42 : ajuster le plan ⚠️</div>
+      </div>
+      <div class="test-race t3">
+        <div class="test-date">SEMAINE 19 · DÉBUT SEPT 2026</div>
+        <div class="test-name">10 km — Test 2</div>
+        <div class="test-obj" style="color:var(--gold)">&lt; 43'30"</div>
+        <div class="test-interp">&lt;42' : vise 1h28–1h29 🔥<br>42'–43'30" : 1h30 quasi-certifié ✅<br>43'30"–45' : vise 1h31–1h33 ⚠️</div>
+      </div>
+      <div class="test-race t4">
+        <div class="test-date">DIMANCHE 18 OCTOBRE 2026</div>
+        <div class="test-name" style="color:var(--accent)">🏛️ Semi de Rome</div>
+        <div class="test-obj" style="color:var(--accent)">1h30'00"</div>
+        <div class="test-interp">4'15"/km · km 1–3 : départ prudent<br>km 4–15 : allure cible<br>km 16–21 : tout donner</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     AUTRES SPORTS
+══════════════════════════════════════════════ -->
+<div id="view-sports" class="view">
+  <div class="page-title">AUTRES SPORTS</div>
+  <div class="page-sub">Natation · Vélo · Padel · Tous en semaine uniquement · Le week-end = course à pied seulement</div>
+
+  <div class="sport-card" style="border-top:3px solid var(--cyan)">
+    <div class="sport-header">
+      <div class="sport-icon">🏊</div>
+      <div>
+        <div class="sport-name" style="color:var(--cyan)">NATATION</div>
+        <div class="sport-freq">1×/semaine · Mardi ou mercredi matin · ~45–55 min</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7;">
+      La natation est idéale en complément de la course : zéro impact articulaire, travail cardio, récupération active. Maintiens les séances même en semaines de récupération.
+    </div>
+    <div class="sport-sessions">
+      <div class="sport-session">
+        <div class="sport-session-name" style="color:var(--cyan)">🟦 Endurance — Blocs 1–2</div>
+        <div class="sport-session-desc">20×50m avec 20 sec récup · ou 10×100m avec 30 sec récup<br>Objectif : régularité et technique de nage · Z2</div>
+      </div>
+      <div class="sport-session">
+        <div class="sport-session-name" style="color:var(--cyan)">⚡ Intensité — Bloc 2</div>
+        <div class="sport-session-desc">8×100m Z3 + 4×200m Z2 · ou 5×200m Z3 + 10×50m Z4<br>Travaille l'intensité et la résistance à l'effort</div>
+      </div>
+      <div class="sport-session">
+        <div class="sport-session-name" style="color:var(--cyan)">😴 Récupération — Blocs 3–4</div>
+        <div class="sport-session-desc">Nage libre Z1 · 30–45 min sans contrainte<br>Récupération articulaire pure — zéro intensité</div>
+      </div>
+    </div>
+    <div class="salle-tip" style="margin-top:12px;">💡 Si tu ne sais pas nager le crawl efficacement, concentre-toi sur la brasse ou le dos — l'important est le temps dans l'eau, pas le style.</div>
+  </div>
+
+  <div class="sport-card" style="border-top:3px solid var(--orange)">
+    <div class="sport-header">
+      <div class="sport-icon">🚴</div>
+      <div>
+        <div class="sport-name" style="color:var(--orange)">VÉLO</div>
+        <div class="sport-freq">1×/semaine · Mercredi matin ou samedi matin · 1h environ</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7;">
+      Excellent sport croisé pour les semaines chargées en course. Home trainer pratique en semaine. Route le week-end si pas de sortie longue prévue ce jour-là. Toujours en Z1–Z2 sauf exceptions.
+    </div>
+    <div class="sport-sessions">
+      <div class="sport-session">
+        <div class="sport-session-name" style="color:var(--orange)">🔵 Récup active — Semaines de charge</div>
+        <div class="sport-session-desc">1h home trainer Z1–Z2 · Cadence souple 80–90 rpm<br>Remplace le footing de récup — zéro impact</div>
+      </div>
+      <div class="sport-session">
+        <div class="sport-session-name" style="color:var(--orange)">🌄 Sortie route — Blocs 1–2</div>
+        <div class="sport-session-desc">1h–1h30 route · Z2 · Terrain varié<br>Profite du paysage — séance mentale aussi</div>
+      </div>
+      <div class="sport-session">
+        <div class="sport-session-name" style="color:var(--orange)">⚡ Vélo fractionné — Optionnel Bloc 2</div>
+        <div class="sport-session-desc">45 min · 5×5 min effort Z4 vélo · Récup 3 min<br>Si tu veux varier sans impacter les jambes</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sport-card" style="border-top:3px solid var(--pink)">
+    <div class="sport-header">
+      <div class="sport-icon">🎾</div>
+      <div>
+        <div class="sport-name" style="color:var(--pink)">PADEL</div>
+        <div class="sport-freq">1×/semaine · Midi en semaine · 1h · Loisir uniquement</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7;">
+      Le padel est une excellente activité mentale et sociale. Mais attention : c'est un sport explosif avec beaucoup de changements de direction — risque réel de blessure (cheville, adducteurs) si les jambes sont fatiguées.
+    </div>
+    <div class="sport-sessions">
+      <div class="sport-session">
+        <div class="sport-session-name" style="color:var(--pink)">✅ Quand jouer ?</div>
+        <div class="sport-session-desc">Le mercredi midi — entre salle mardi matin et salle jeudi matin<br>Jamais la veille d'un fractionné ou d'une sortie longue</div>
+      </div>
+      <div class="sport-session">
+        <div class="sport-session-name" style="color:var(--red)">⚠️ Quand éviter ?</div>
+        <div class="sport-session-desc">Semaines de course test (S10, S14, S19)<br>Si douleur tendinite ou fatigue excessive des jambes<br>Les 3 semaines avant Rome (Blocs 4 final)</div>
+      </div>
+      <div class="sport-session">
+        <div class="sport-session-name" style="color:var(--pink)">💡 Niveau recommandé</div>
+        <div class="sport-session-desc">Loisir uniquement — pas de compétition<br>Niveau d'intensité moyen — pas de match 3 sets épuisants</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     NUTRITION
+══════════════════════════════════════════════ -->
+<div id="view-nutrition" class="view">
+  <div class="page-title">NUTRITION & COMPLÉMENTS</div>
+  <div class="page-sub">Programme alimentaire adapté · Produits Ta Énergie · Overstims · Nutripure</div>
+
+  <div class="nutri-tabs">
+    <button class="nutri-tab active" onclick="switchNutriTab('quotidien')">🥗 Quotidien</button>
+    <button class="nutri-tab" onclick="switchNutriTab('parbloc')">📅 Par bloc</button>
+    <button class="nutri-tab" onclick="switchNutriTab('recettes')">🍽️ Recettes</button>
+    <button class="nutri-tab" onclick="switchNutriTab('course')">🏃 En course</button>
+    <button class="nutri-tab" onclick="switchNutriTab('complements')">💊 Compléments</button>
+    <button class="nutri-tab" onclick="switchNutriTab('produits')">🧴 Produits sport</button>
+    <button class="nutri-tab" onclick="switchNutriTab('poids')">⚖️ Poids & Corps</button>
+  </div>
+
+  <!-- QUOTIDIEN -->
+  <div id="nutri-quotidien" class="nutri-view active">
+    <div class="nutri-hero">
+      <h2>ALIMENTATION DU COUREUR DE SEMI</h2>
+      <p>À 58 kg avec ce volume d'entraînement, tu brûles entre <strong>2800 et 3400 kcal/jour</strong> selon les séances. L'erreur classique du coureur : ne pas manger assez et sous-récupérer. La nutrition est le 4ème entraînement.</p>
+    </div>
+
+    <div class="nutri-macros">
+      <div class="macro-card">
+        <div class="macro-icon">🍞</div>
+        <div class="macro-name">Glucides</div>
+        <div class="macro-val" style="color:var(--gold)">6–8g</div>
+        <div class="macro-sub">par kg de poids · 350–465g/jour<br>Carburant principal de la course</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-icon">🥩</div>
+        <div class="macro-name">Protéines</div>
+        <div class="macro-val" style="color:var(--accent)">1.8g</div>
+        <div class="macro-sub">par kg · ~105g/jour<br>Reconstruction musculaire</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-icon">🥑</div>
+        <div class="macro-name">Lipides</div>
+        <div class="macro-val" style="color:var(--blue)">1.2g</div>
+        <div class="macro-sub">par kg · ~70g/jour<br>Hormones + énergie longue durée</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-icon">💧</div>
+        <div class="macro-name">Hydratation</div>
+        <div class="macro-val" style="color:var(--cyan)">2.5L</div>
+        <div class="macro-sub">minimum/jour<br>+500 ml par heure de sport</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title">Plan alimentaire — Jour d'entraînement type (matin salle + soir course)</div>
+      <div class="meal-plan">
+        <div class="meal-row">
+          <div class="meal-time">6h30<br><span style="color:var(--muted);font-size:10px;">Avant salle</span></div>
+          <div class="meal-content"><div class="meal-name">Petit-déjeuner pré-entraînement léger</div><div class="meal-desc">1 banane + 30g flocons d'avoine + café noir · Léger pour la salle 7h · Pas de lait ou matière grasse</div></div>
+          <div class="meal-macro">~350 kcal<br><span>G: 65g · P: 8g · L: 5g</span></div>
+        </div>
+        <div class="meal-row">
+          <div class="meal-time">8h30<br><span style="color:var(--muted);font-size:10px;">Post-salle</span></div>
+          <div class="meal-content"><div class="meal-name">Récupération post-salle</div><div class="meal-desc">Yaourt grec 200g + granola 40g + fruits rouges + 30g whey (optionnel) · Fenêtre anabolique 30 min post-effort</div></div>
+          <div class="meal-macro">~500 kcal<br><span>G: 60g · P: 35g · L: 12g</span></div>
+        </div>
+        <div class="meal-row">
+          <div class="meal-time">12h00<br><span style="color:var(--muted);font-size:10px;">Déjeuner</span></div>
+          <div class="meal-content"><div class="meal-name">Repas principal glucides + protéines</div><div class="meal-desc">150g riz ou pâtes cuits + 150g poulet ou poisson + légumes à volonté + huile d'olive · Base de toutes les journées d'entraînement</div></div>
+          <div class="meal-macro">~700 kcal<br><span>G: 85g · P: 40g · L: 18g</span></div>
+        </div>
+        <div class="meal-row">
+          <div class="meal-time">16h00<br><span style="color:var(--muted);font-size:10px;">Pré-course</span></div>
+          <div class="meal-content"><div class="meal-name">Collation pré-séance soir</div><div class="meal-desc">30g amandes + 1 fruit ou 2 tranches pain complet + confiture · 2h avant la séance du soir · Pas trop lourd</div></div>
+          <div class="meal-macro">~300 kcal<br><span>G: 35g · P: 8g · L: 14g</span></div>
+        </div>
+        <div class="meal-row">
+          <div class="meal-time">18h–19h<br><span style="color:var(--muted);font-size:10px;">Séance course</span></div>
+          <div class="meal-content"><div class="meal-name">Pendant la séance (&gt;45 min)</div><div class="meal-desc">Eau pure pour séances &lt;60 min · Boisson isotonique Ta Énergie ou Overstims pour séances &gt;60 min</div></div>
+          <div class="meal-macro">~100–200 kcal<br><span>Selon durée</span></div>
+        </div>
+        <div class="meal-row">
+          <div class="meal-time">20h00<br><span style="color:var(--muted);font-size:10px;">Dîner</span></div>
+          <div class="meal-content"><div class="meal-name">Dîner récupération</div><div class="meal-desc">Œufs (3) ou viande maigre + légumes cuits + pommes de terre ou patate douce + huile d'olive · Si séance longue : rajouter 100g pâtes</div></div>
+          <div class="meal-macro">~650 kcal<br><span>G: 55g · P: 38g · L: 22g</span></div>
+        </div>
+        <div class="meal-row">
+          <div class="meal-time">22h00<br><span style="color:var(--muted);font-size:10px;">Avant coucher</span></div>
+          <div class="meal-content"><div class="meal-name">Collation nocturne (optionnel)</div><div class="meal-desc">30g whey Nutripure ou fromage blanc 150g · Protéines à digestion lente pour la récup nocturne · Très utile après les séances longues</div></div>
+          <div class="meal-macro">~150 kcal<br><span>P: 25–30g</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Veille de sortie longue (samedi)</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;">
+          <strong style="color:var(--text)">Déjeuner :</strong> Pâtes ou riz en grande quantité (200g cuit) + sauce légère<br>
+          <strong style="color:var(--text)">Dîner :</strong> "Pasta party" — pâtes 200g + huile d'olive + parmesan + poulet<br>
+          <strong style="color:var(--text)">Hydratation :</strong> 2,5–3L tout au long de la journée<br>
+          <strong style="color:var(--text)">Éviter :</strong> Alcool, aliments gras lourds, légumineuses (ballonnements)
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Jour de sortie longue</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;">
+          <strong style="color:var(--text)">3h avant :</strong> 80g flocons d'avoine + banane + café — rien de nouveau<br>
+          <strong style="color:var(--text)">30 min avant :</strong> 1 gel Ta Énergie ou Overstims si séance &gt;18 km<br>
+          <strong style="color:var(--text)">Pendant :</strong> 1 gel toutes les 40–45 min + eau<br>
+          <strong style="color:var(--text)">Après :</strong> Dans les 30 min : whey + fruit · Dans l'heure : repas complet
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NUTRITION COURSE -->
+  <div id="nutri-course" class="nutri-view" style="display:none">
+    <div class="nutri-hero" style="background:linear-gradient(135deg,rgba(255,68,34,.08),rgba(245,166,35,.05));border-color:rgba(255,68,34,.2);">
+      <h2 style="color:var(--accent)">NUTRITION EN COURSE & ENTRAÎNEMENT LONG</h2>
+      <p>La nutrition en course s'entraîne comme les jambes. Commence à tester tes gels dès la S11 (21 km). Ne jamais tester quelque chose de nouveau le jour de la course à Rome.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-title">Stratégie nutritionnelle — Semi-Marathon Rome 1h30</div>
+      <div class="race-nutri">
+        <div class="race-nutri-step">
+          <div class="rns-km">J–2</div>
+          <div class="rns-act">Charge glucidique</div>
+          <div class="rns-prod">Pâtes + riz + pain</div>
+          <div class="rns-note">Augmenter les glucides de 30%</div>
+        </div>
+        <div class="race-nutri-step">
+          <div class="rns-km">J–1</div>
+          <div class="rns-act">Pasta Party</div>
+          <div class="rns-prod">Pâtes blanches + huile + parmesan</div>
+          <div class="rns-note">Repas à 19h max · coucher 21h</div>
+        </div>
+        <div class="race-nutri-step">
+          <div class="rns-km">–3h</div>
+          <div class="rns-act">Petit-déjeuner</div>
+          <div class="rns-prod">Flocons + banane + café + pain</div>
+          <div class="rns-note">Testé plusieurs fois à l'entraînement</div>
+        </div>
+        <div class="race-nutri-step">
+          <div class="rns-km">–30min</div>
+          <div class="rns-act">Activation énergétique</div>
+          <div class="rns-prod">1 gel Overstims Antiq Caffeine</div>
+          <div class="rns-note">Avec 200 ml d'eau · Caféine légère</div>
+        </div>
+        <div class="race-nutri-step">
+          <div class="rns-km">KM 7</div>
+          <div class="rns-act">1er ravitaillement gel</div>
+          <div class="rns-prod">Gel Ta Énergie Liquide 32g</div>
+          <div class="rns-note">Avec eau au ravito suivant</div>
+        </div>
+        <div class="race-nutri-step">
+          <div class="rns-km">KM 14</div>
+          <div class="rns-act">2ème ravitaillement gel</div>
+          <div class="rns-prod">Gel Overstims Punch Power cafféiné</div>
+          <div class="rns-note">Caféine pour les 7 derniers km</div>
+        </div>
+        <div class="race-nutri-step">
+          <div class="rns-km">TOUS</div>
+          <div class="rns-act">Eau à chaque ravito</div>
+          <div class="rns-prod">Eau pure · 150–200 ml</div>
+          <div class="rns-note">Ne jamais sauter un ravito</div>
+        </div>
+        <div class="race-nutri-step">
+          <div class="rns-km">POST</div>
+          <div class="rns-act">Récupération immédiate</div>
+          <div class="rns-prod">Pure Recovery Nutripure + banane</div>
+          <div class="rns-note">Dans les 30 min après l'arrivée</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Nutrition à l'entraînement selon la durée</div>
+      <table class="exo-table">
+        <thead><tr><th>Durée séance</th><th>Avant</th><th>Pendant</th><th>Après</th></tr></thead>
+        <tbody>
+          <tr><td><b>&lt;45 min</b></td><td style="font-size:11px;color:var(--muted)">Petit-déj léger ou à jeun</td><td style="font-size:11px;color:var(--muted)">Eau pure uniquement</td><td style="font-size:11px;color:var(--muted)">Yaourt + fruit</td></tr>
+          <tr><td><b>45–60 min</b></td><td style="font-size:11px;color:var(--muted)">Banane 30 min avant</td><td style="font-size:11px;color:var(--muted)">Eau pure ou boisson légère</td><td style="font-size:11px;color:var(--muted)">Whey + glucides dans les 30 min</td></tr>
+          <tr><td><b>60–90 min</b></td><td style="font-size:11px;color:var(--muted)">Repas 2–3h avant</td><td style="font-size:11px;color:var(--muted)">Boisson isotonique Ta Énergie · 500 ml</td><td style="font-size:11px;color:var(--muted)">Pure Recovery + repas complet</td></tr>
+          <tr><td><b>&gt;90 min (longue/trail)</b></td><td style="font-size:11px;color:var(--muted)">Repas 3h avant + 1 gel –30 min</td><td style="font-size:11px;color:var(--muted)">1 gel/45 min + eau · Boisson isotonique</td><td style="font-size:11px;color:var(--muted)">Pure Recovery immédiat + repas dans l'heure</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- COMPLÉMENTS -->
+  <div id="nutri-complements" class="nutri-view" style="display:none">
+    <div class="nutri-hero" style="background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(16,185,129,.04));border-color:rgba(168,85,247,.2);">
+      <h2 style="color:var(--purple)">COMPLÉMENTS ALIMENTAIRES</h2>
+      <p>Les compléments ne remplacent pas une bonne alimentation — ils la complètent. À ton niveau d'entraînement (8–10 séances/semaine), certains sont vraiment utiles pour la récupération et la prévention. Marque principale recommandée : <strong>Nutripure</strong>.</p>
+    </div>
+
+    <div class="compl-grid">
+      <div class="compl-card" style="border-top:2px solid var(--purple)">
+        <div class="compl-name">Pure Recovery <span class="compl-badge">PRIORITÉ 1</span></div>
+        <div class="compl-product">🟣 Nutripure — Pure Recovery</div>
+        <div class="compl-desc">Mélange whey + glucides + électrolytes spécialement formulé pour la récupération post-effort intense. Réduit les courbatures, reconstitue les glycogènes et stoppe le catabolisme musculaire.</div>
+        <div class="compl-dose">Dose : 40g dans 400 ml eau froide</div>
+        <div class="compl-timing">⏰ Dans les 30 min post-effort long ou intense</div>
+      </div>
+      <div class="compl-card" style="border-top:2px solid var(--accent)">
+        <div class="compl-name">Whey Protéine <span class="compl-badge">PRIORITÉ 1</span></div>
+        <div class="compl-product">🟣 Nutripure — Whey Pure</div>
+        <div class="compl-desc">Protéine de lactosérum à haute valeur biologique. Indispensable à ton volume d'entraînement pour atteindre les 105g/j de protéines sans manger 4 repas de viande. Sans additifs ni sucres ajoutés.</div>
+        <div class="compl-dose">Dose : 30g = 1 shaker · 1 à 2×/jour</div>
+        <div class="compl-timing">⏰ Post-salle (8h30) et/ou avant coucher</div>
+      </div>
+      <div class="compl-card" style="border-top:2px solid var(--blue)">
+        <div class="compl-name">Collagène <span class="compl-badge">PRIORITÉ 2</span></div>
+        <div class="compl-product">🟣 Nutripure — Collagène Marin</div>
+        <div class="compl-desc">Réduit les risques de tendinite et protège les articulations (genoux, chevilles, hanches). Essentiel à partir du Bloc 2 avec l'augmentation du volume. Le collagène marin a une meilleure biodisponibilité que bovin.</div>
+        <div class="compl-dose">Dose : 10g dans jus de citron</div>
+        <div class="compl-timing">⏰ À jeun le matin · Avec vitamine C pour l'assimilation</div>
+      </div>
+      <div class="compl-card" style="border-top:2px solid var(--gold)">
+        <div class="compl-name">BCAA <span class="compl-badge">OPTIONNEL</span></div>
+        <div class="compl-product">🟣 Nutripure — BCAA 4.1.1</div>
+        <div class="compl-desc">Acides aminés branchés (leucine, isoleucine, valine). Limitent le catabolisme musculaire pendant les séances longues et réduisent la fatigue centrale. Utiles principalement pendant les longues sorties trail.</div>
+        <div class="compl-dose">Dose : 5–8g dans la boisson d'effort</div>
+        <div class="compl-timing">⏰ Pendant les séances &gt;90 min · Trail, longue sortie</div>
+      </div>
+      <div class="compl-card" style="border-top:2px solid var(--green)">
+        <div class="compl-name">Magnésium <span class="compl-badge">PRIORITÉ 2</span></div>
+        <div class="compl-product">🟣 Nutripure — Magnésium Bisglycinate</div>
+        <div class="compl-desc">Le magnésium est éliminé par la transpiration et la première carence des sportifs. Rôle clé dans la contraction musculaire, la récupération et la qualité du sommeil. Le bisglycinate est la forme la mieux assimilée.</div>
+        <div class="compl-dose">Dose : 300 mg/jour</div>
+        <div class="compl-timing">⏰ Le soir avant coucher — améliore aussi le sommeil</div>
+      </div>
+      <div class="compl-card" style="border-top:2px solid var(--cyan)">
+        <div class="compl-name">Vitamine D3 <span class="compl-badge">PRIORITÉ 2</span></div>
+        <div class="compl-product">🟣 Nutripure — Vitamine D3+K2</div>
+        <div class="compl-desc">70% de la population est carencée en D3, surtout en automne-hiver. Rôle clé dans la force musculaire, l'immunité et la densité osseuse. Associée à K2 pour optimiser la fixation du calcium.</div>
+        <div class="compl-dose">Dose : 2000–4000 UI/jour</div>
+        <div class="compl-timing">⏰ Avec un repas contenant des graisses (absorption)</div>
+      </div>
+      <div class="compl-card" style="border-top:2px solid var(--orange)">
+        <div class="compl-name">Oméga-3 <span class="compl-badge">OPTIONNEL</span></div>
+        <div class="compl-product">🟣 Nutripure — Oméga-3 Marin</div>
+        <div class="compl-desc">Anti-inflammatoire naturel. Réduit les courbatures post-effort et améliore la récupération sur la durée. Particulièrement utile après les semaines choc (S13, S18).</div>
+        <div class="compl-dose">Dose : 2g EPA+DHA/jour</div>
+        <div class="compl-timing">⏰ Au repas — matin ou midi</div>
+      </div>
+      <div class="compl-card" style="border-top:2px solid var(--red)">
+        <div class="compl-name">Fer + B12 <span class="compl-badge">SI CARENCE</span></div>
+        <div class="compl-product">Bilan sanguin recommandé en début de plan</div>
+        <div class="compl-desc">La carence en fer est fréquente chez les coureurs (hémolyse des globules rouges à l'impact). Symptômes : fatigue, performance plateau, essoufflement anormal. Bilan sanguin à faire dès le départ.</div>
+        <div class="compl-dose">Dose : Selon prescription médicale uniquement</div>
+        <div class="compl-timing">⏰ Ne jamais se supplémenter sans bilan — excès toxique</div>
+      </div>
+    </div>
+
+    <!-- Nutripure gamme étendue -->
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--purple);letter-spacing:1px;margin:20px 0 12px;text-transform:uppercase;">🟣 Nutripure — Gamme complète recommandée</div>
+    <div class="compl-grid" style="margin-bottom:20px;">
+      <div class="compl-card" style="border-top:2px solid var(--cyan)">
+        <div class="compl-name">Vitamine C <span class="compl-badge">OPTIONNEL</span></div>
+        <div class="compl-product">🟣 Nutripure — Vitamine C Pure</div>
+        <div class="compl-desc">Indispensable pour l'assimilation du collagène (prendre ensemble). Antioxydant, soutient l'immunité pendant les gros blocs. Forme tamponnée (acide ascorbique) = meilleure tolérance gastrique.</div>
+        <div class="compl-dose">Dose : 500mg avec le collagène le matin</div>
+        <div class="compl-timing">⏰ À jeun avec le collagène — synergie maximale</div>
+      </div>
+      <div class="compl-card" style="border-top:2px solid var(--green)">
+        <div class="compl-name">Créatine Monohydrate <span class="compl-badge">OPTIONNEL</span></div>
+        <div class="compl-product">🟣 Nutripure — Créatine Pure</div>
+        <div class="compl-desc">La créatine améliore les performances en efforts courts et intenses (fractionnés, côtes). Elle augmente légèrement le poids (eau intramusculaire +0.5–1 kg) mais booste la puissance. Utile en Bloc 1–2.</div>
+        <div class="compl-dose">Dose : 3–5g/jour (pas de phase de charge)</div>
+        <div class="compl-timing">⏰ Post-effort ou avec un repas · Pause en Blocs 3–4</div>
+      </div>
+      <div class="compl-card" style="border-top:2px solid var(--pink)">
+        <div class="compl-name">Zinc + Sélénium <span class="compl-badge">OPTIONNEL</span></div>
+        <div class="compl-product">🟣 Nutripure — Zinc Bisglycinate</div>
+        <div class="compl-desc">Le zinc est éliminé par la sueur et joue un rôle clé dans la synthèse protéique et la testostérone. Un déficit se manifeste par des baisses de performance, fatigue et récup lente. Surtout utile en été (Bloc 2).</div>
+        <div class="compl-dose">Dose : 15mg zinc + 100mcg sélénium</div>
+        <div class="compl-timing">⏰ Le soir au dîner (zinc mal assimilé avec le café)</div>
+      </div>
+      <div class="compl-card" style="border-top:2px solid var(--orange)">
+        <div class="compl-name">Vitamine B complexe <span class="compl-badge">OPTIONNEL</span></div>
+        <div class="compl-product">🟣 Nutripure ou multivitamines qualité</div>
+        <div class="compl-desc">Les vitamines B (B1, B2, B6, B12) sont cofacteurs de la production d'énergie mitochondriale. Très importantes si le plan alimentaire est parfois insuffisant en légumes variés et viandes. B12 indispensable si régime végétarien.</div>
+        <div class="compl-dose">Dose : 1 comprimé/jour selon produit</div>
+        <div class="compl-timing">⏰ Le matin avec le petit-déjeuner</div>
+      </div>
+    </div>
+
+    <!-- Calendrier semaine par semaine -->
+    <div class="card" style="margin-top:4px;">
+      <div class="card-title">📅 Calendrier des compléments — Semaine par semaine</div>
+      <div style="overflow-x:auto;">
+      <table class="exo-table" style="min-width:750px;">
+        <thead>
+          <tr>
+            <th>Semaines</th>
+            <th style="color:var(--accent)">Whey Pure</th>
+            <th style="color:var(--blue)">Collagène + C</th>
+            <th style="color:var(--purple)">Pure Recovery</th>
+            <th style="color:var(--green)">Magnésium</th>
+            <th style="color:var(--cyan)">D3 + K2</th>
+            <th style="color:var(--gold)">BCAA</th>
+            <th style="color:var(--orange)">Oméga-3</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b style="color:var(--blue)">S1–S6</b><br><span style="font-size:10px;color:var(--muted)">Bloc 1</span></td>
+            <td><span style="color:var(--green)">✅ Oui</span><br><span style="font-size:10px;color:var(--muted)">post-salle</span></td>
+            <td><span style="color:var(--gold)">⚡ S3+</span><br><span style="font-size:10px;color:var(--muted)">dès S3</span></td>
+            <td><span style="color:var(--gold)">⚡ S4+</span><br><span style="font-size:10px;color:var(--muted)">post-longues</span></td>
+            <td><span style="color:var(--green)">✅ Oui</span><br><span style="font-size:10px;color:var(--muted)">chaque soir</span></td>
+            <td><span style="color:var(--green)">✅ Oui</span><br><span style="font-size:10px;color:var(--muted)">chaque matin</span></td>
+            <td><span style="color:var(--muted)">— Non</span></td>
+            <td><span style="color:var(--gold)">⚡ S3+</span></td>
+          </tr>
+          <tr style="background:rgba(16,185,129,.03)">
+            <td><b style="color:var(--green)">S7–S14</b><br><span style="font-size:10px;color:var(--muted)">Bloc 2</span></td>
+            <td><span style="color:var(--green)">✅ 2×/jour</span><br><span style="font-size:10px;color:var(--muted)">post-salle + coucher</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span><br><span style="font-size:10px;color:var(--muted)">obligatoire</span></td>
+            <td><span style="color:var(--green)">✅ Après toutes</span><br><span style="font-size:10px;color:var(--muted)">les longues/trails</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span><br><span style="font-size:10px;color:var(--muted)">+électrolytes si chaud</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span></td>
+            <td><span style="color:var(--green)">✅ Oui</span><br><span style="font-size:10px;color:var(--muted)">&gt;90 min seulement</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span></td>
+          </tr>
+          <tr>
+            <td><b style="color:var(--gold)">S15–S20</b><br><span style="font-size:10px;color:var(--muted)">Bloc 3</span></td>
+            <td><span style="color:var(--green)">✅ 2×/jour</span><br><span style="font-size:10px;color:var(--muted)">obligatoire</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span><br><span style="font-size:10px;color:var(--muted)">++ avant S18</span></td>
+            <td><span style="color:var(--green)">✅ Systématique</span><br><span style="font-size:10px;color:var(--muted)">post toute séance +60'</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span></td>
+            <td><span style="color:var(--green)">✅ Systématique</span><br><span style="font-size:10px;color:var(--muted)">trails + longues</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span></td>
+          </tr>
+          <tr style="background:rgba(255,68,34,.03)">
+            <td><b style="color:var(--accent)">S21–S24</b><br><span style="font-size:10px;color:var(--muted)">Bloc 4</span></td>
+            <td><span style="color:var(--green)">✅ 1×/jour</span><br><span style="font-size:10px;color:var(--muted)">maintien</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span></td>
+            <td><span style="color:var(--gold)">⚡ Post-longues</span><br><span style="font-size:10px;color:var(--muted)">seulement</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span></td>
+            <td><span style="color:var(--muted)">— Arrêter</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span></td>
+          </tr>
+          <tr style="background:rgba(255,68,34,.07)">
+            <td><b style="color:var(--accent)">S25 — ROME</b><br><span style="font-size:10px;color:var(--muted)">Semaine course</span></td>
+            <td><span style="color:var(--green)">✅ 1×/jour</span></td>
+            <td><span style="color:var(--green)">✅ J–3 à J–1</span></td>
+            <td><span style="color:var(--gold)">⚡ Post-arrivée</span><br><span style="font-size:10px;color:var(--muted)">dans les 30 min</span></td>
+            <td><span style="color:var(--green)">✅ Chaque soir</span></td>
+            <td><span style="color:var(--green)">✅ Chaque matin</span></td>
+            <td><span style="color:var(--muted)">— Non</span></td>
+            <td><span style="color:var(--green)">✅ Quotidien</span></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="salle-tip" style="margin-top:12px;">💡 <strong>Budget estimé par mois :</strong> Whey ~25€ · Collagène ~20€ · Pure Recovery ~30€ · Magnésium ~12€ · D3+K2 ~12€ · Oméga-3 ~20€ = <strong style="color:var(--text)">~120€/mois au pic (Blocs 2–3)</strong> · Priorité 1 seulement = ~55€/mois</div>
+    </div>
+  </div>
+
+  <!-- PRODUITS SPORT -->
+  <div id="nutri-produits" class="nutri-view" style="display:none">
+    <div class="nutri-hero" style="background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(6,182,212,.05));border-color:rgba(59,130,246,.2);">
+      <h2>PRODUITS NUTRITION SPORTIVE</h2>
+      <p>Deux marques complémentaires : <strong style="color:var(--accent)">Ta Énergie</strong> (naturelle, française, facile à digérer) et <strong style="color:var(--blue)">Overstims</strong> (performance, caféine, gamme longue distance). Commence à tester <strong>dès S7</strong> sur tes séances longues. Ne jamais arriver à Rome sans avoir testé chaque produit au moins 3 fois.</p>
+    </div>
+
+    <!-- TA ÉNERGIE -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:12px 16px;background:var(--s2);border-radius:6px;border-left:3px solid var(--accent);">
+      <span style="font-size:22px;">🍊</span>
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--accent);">TA ÉNERGIE — Gamme naturelle française</div>
+        <div style="font-size:11px;color:var(--muted);">Ingrédients naturels · Sans colorants · Saveurs fruitées · Facile à digérer · Idéal estomacs sensibles</div>
+      </div>
+    </div>
+    <div class="product-grid" style="margin-bottom:24px;">
+      <div class="product-card brand-ta">
+        <div class="product-brand">Ta Énergie — ⭐ PRODUIT CLÉ</div>
+        <div class="product-name">Gel Liquide 32g</div>
+        <div class="product-desc">Gel à base de purée de fruits 100% naturels (dattes, banane, framboises selon goût). Texture liquide et fluide, le plus facile à avaler en course. 20g de glucides par gel. Sans édulcorants, sans colorants, sans arômes artificiels. Goûts disponibles : Banane-Citron, Framboise, Mangue-Passion, Pomme-Gingembre.</div>
+        <div class="product-when">🕐 Course : km 7 puis km 14 · Entraînement : toutes les 40–45 min au-delà de 60 min</div>
+        <div class="product-dose">💧 Avec 150–200ml d'eau obligatoire · Conserver au chaud dans la poche (plus facile à avaler)</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">📊 Valeurs nutritives : 80 kcal · 20g glucides · 0g protéines · 0g lipides</div>
+      </div>
+      <div class="product-card brand-ta">
+        <div class="product-brand">Ta Énergie</div>
+        <div class="product-name">Boisson Isotonique en poudre</div>
+        <div class="product-desc">Poudre à diluer, équilibre glucides complexes/simples (maltodextrine + fructose) + électrolytes (sodium, potassium, magnésium). Goût léger et non écoeurant même après 2h de boisson. Parfaite pour les tempos et les séances côtes en été.</div>
+        <div class="product-when">🕐 Séances 60–120 min (tempos, côtes longues) · 500 ml/heure d'effort</div>
+        <div class="product-dose">💧 1 sachet dans 500ml d'eau fraîche · Peut alterner avec l'eau pure toutes les 20 min</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">📊 Pour 500ml : ~130 kcal · 30g glucides · 600mg sodium</div>
+      </div>
+      <div class="product-card brand-ta">
+        <div class="product-brand">Ta Énergie</div>
+        <div class="product-name">Barre Énergie Naturelle</div>
+        <div class="product-desc">Barre compacte aux fruits secs, graines et céréales. Plus solide qu'un gel, idéal pour les efforts très longs quand l'estomac demande "quelque chose à mâcher". Plusieurs saveurs : Noisette-Chocolat, Fruits rouges, Abricot-Amande. Se mâche facilement même en mouvement.</div>
+        <div class="product-when">🕐 Trails &gt;2h · Toutes les 60–75 min en alternance avec les gels · JAMAIS en course sur route</div>
+        <div class="product-dose">💧 Obligatoirement avec de l'eau · Couper en morceaux avant le départ si besoin</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">📊 Par barre : ~180 kcal · 28g glucides · 4g protéines · 6g lipides</div>
+      </div>
+      <div class="product-card brand-ta">
+        <div class="product-brand">Ta Énergie</div>
+        <div class="product-name">Gel Caféine (si disponible)</div>
+        <div class="product-desc">Version cafféinée de leur gel liquide — 40mg caféine naturelle (guarana ou café vert). Alternative plus douce aux gels Overstims cafféinés. Idéal si tu es sensible à la caféine mais veux quand même le boost. À tester absolument à l'entraînement avant d'utiliser en course.</div>
+        <div class="product-when">🕐 –30 min avant compétition ou km 14 en course · Maximum 1 par sortie</div>
+        <div class="product-dose">💧 Avec 200ml d'eau · Éviter après 16h à l'entraînement (sommeil)</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">📊 80 kcal · 20g glucides · 40mg caféine naturelle</div>
+      </div>
+      <div class="product-card brand-ta">
+        <div class="product-brand">Ta Énergie</div>
+        <div class="product-name">Boisson de Récupération</div>
+        <div class="product-desc">Poudre récupération post-effort : glucides + protéines de lait + électrolytes. Option nomade (sachet individuel) très pratique à emporter sur les trails longs. Saveur chocolat ou vanille. Moins concentré que Pure Recovery Nutripure mais pratique sur le terrain.</div>
+        <div class="product-when">🕐 Dans les 20–30 min post-effort long ou trail · En déplacement quand Nutripure n'est pas dispo</div>
+        <div class="product-dose">💧 1 sachet dans 300–400ml d'eau froide · Compléter avec une banane</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">📊 ~200 kcal · 28g glucides · 15g protéines</div>
+      </div>
+    </div>
+
+    <!-- OVERSTIMS -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:12px 16px;background:var(--s2);border-radius:6px;border-left:3px solid var(--blue);">
+      <span style="font-size:22px;">⚡</span>
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--blue);">OVERSTIMS — Gamme performance</div>
+        <div style="font-size:11px;color:var(--muted);">Formulé pour la compétition · Caféine stratégique · Longues distances · Électrolytes ++</div>
+      </div>
+    </div>
+    <div class="product-grid" style="margin-bottom:24px;">
+      <div class="product-card brand-over">
+        <div class="product-brand">Overstims — ⭐ PRODUIT CLÉ ROME</div>
+        <div class="product-name">Gel Antiq Caffeine</div>
+        <div class="product-desc">Gel concentré avec 80mg de caféine naturelle (café vert). La caféine à cette dose améliore significativement la performance sur les 5–7 derniers km d'un semi. Formule maltodextrine + fructose + caféine + vitamines B. Texture plus dense que Ta Énergie — bien tester à l'entraînement.</div>
+        <div class="product-when">🕐 –30 min avant le départ à Rome · OU km 14–15 en course · Maximum 1 seul par course</div>
+        <div class="product-dose">💧 200ml d'eau avec le gel · Ne pas prendre le soir · Ne pas cumuler avec café le matin de course</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">📊 90 kcal · 22g glucides · 80mg caféine · Vitamine B6</div>
+      </div>
+      <div class="product-card brand-over">
+        <div class="product-brand">Overstims</div>
+        <div class="product-name">Gel Punch Power</div>
+        <div class="product-desc">Gel polyvalent sans caféine — format compact, texture semi-liquide. Maltodextrine + fructose (ratio 2:1 optimal) + électrolytes. Plusieurs saveurs : Citron, Fraise, Fruits tropicaux, Cola. Peut alterner avec les gels Ta Énergie pour varier les saveurs sur les longues sorties.</div>
+        <div class="product-when">🕐 Toutes les 40–45 min sur les sorties &gt;90 min · Alternance avec Ta Énergie recommandée</div>
+        <div class="product-dose">💧 Avec eau obligatoire · Goût sucré intense — tester la tolérance digestive avant Rome</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">📊 85 kcal · 21g glucides · Électrolytes : 100mg sodium</div>
+      </div>
+      <div class="product-card brand-over">
+        <div class="product-brand">Overstims</div>
+        <div class="product-name">Boisson Longue Distance (LCD)</div>
+        <div class="product-desc">Formule spécialement conçue pour les efforts &gt;3h. Apport en acides aminés essentiels (BCAA intégrés), maltodextrine lente + sucrose, électrolytes complets. Réduit le "mur" énergétique sur les trails exigeants. Goût neutre qui ne lasse pas.</div>
+        <div class="product-when">🕐 Trails &gt;3h · Sorties longues &gt;2h30 · 500ml/heure en alternance avec eau pure</div>
+        <div class="product-dose">💧 1 dose dans 500ml eau · Compléter avec 1 gel Ta Énergie toutes les 45 min en supplément</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">📊 500ml : 180 kcal · 38g glucides · 6g BCAA intégrés · 700mg sodium</div>
+      </div>
+      <div class="product-card brand-over">
+        <div class="product-brand">Overstims</div>
+        <div class="product-name">Boisson de Récupération Récup</div>
+        <div class="product-desc">Boisson post-effort spécifique : whey hydrolysat (absorption rapide) + maltodextrine + électrolytes + L-glutamine. La glutamine accélère la réparation de la muqueuse intestinale abîmée par l'effort intense. Plus concentrée en protéines que Ta Énergie Récup.</div>
+        <div class="product-when">🕐 Dans les 20–30 min après course test ou trail long · Alternative nomade au Pure Recovery</div>
+        <div class="product-dose">💧 1 sachet 60g dans 400ml eau froide · Compléter avec 1 banane</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">📊 230 kcal · 30g glucides · 20g protéines · L-Glutamine 2g</div>
+      </div>
+      <div class="product-card brand-over">
+        <div class="product-brand">Overstims</div>
+        <div class="product-name">Pâte de fruit énergétique Organic</div>
+        <div class="product-desc">Petits cubes de pâte de fruit biologique à avaler facilement. Alternative aux gels pour les estomacs qui les tolèrent mal. Sucres naturels (glucose + fructose naturel). Pratique sur les trails car se porte facilement dans une poche. Saveurs : pomme, orange, abricot.</div>
+        <div class="product-when">🕐 Trails &gt;2h · Toutes les 50–60 min · Alternative douce aux gels</div>
+        <div class="product-dose">💧 Avec eau · 2–3 cubes par prise · Tester avec Ta Énergie Barre pour varier</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">📊 Par portion (25g) : 80 kcal · 20g glucides</div>
+      </div>
+    </div>
+
+    <!-- Tableau comparatif -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">Tableau comparatif — Quel produit dans quelle situation</div>
+      <table class="exo-table">
+        <thead><tr><th>Situation</th><th>Produit recommandé</th><th>Fréquence</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td><b>Fractionné/tempo &lt;60 min</b></td><td style="color:var(--muted)">Aucun — eau pure</td><td>—</td><td style="font-size:11px;color:var(--muted)">Inutile et peut perturber l'estomac</td></tr>
+          <tr><td><b>Sortie longue 60–90 min</b></td><td style="color:var(--cyan)">Boisson isotonique Ta Énergie</td><td>500ml/heure</td><td style="font-size:11px;color:var(--muted)">Pas besoin de gel</td></tr>
+          <tr><td><b>Sortie longue &gt;90 min</b></td><td style="color:var(--accent)">Gel Ta Énergie Liquide</td><td>1 gel/45 min</td><td style="font-size:11px;color:var(--muted)">+ Boisson isotonique ou eau</td></tr>
+          <tr><td><b>Trail 2–3h</b></td><td style="color:var(--accent)">Gel Ta Énergie + Barre Ta Énergie</td><td>Alterner gel/barre toutes les 45 min</td><td style="font-size:11px;color:var(--muted)">Boisson LCD Overstims recommandée</td></tr>
+          <tr><td><b>Trail &gt;3h</b></td><td style="color:var(--blue)">Boisson LCD Overstims + gels</td><td>500ml/h + 1 gel/45 min</td><td style="font-size:11px;color:var(--muted)">BCAA Nutripure à ajouter</td></tr>
+          <tr><td><b>Course test 10 km</b></td><td style="color:var(--blue)">Gel Antiq Caffeine Overstims</td><td>–30 min avant</td><td style="font-size:11px;color:var(--muted)">Eau aux ravitos uniquement</td></tr>
+          <tr><td><b>Semi de Rome</b></td><td style="color:var(--accent)">Antiq Caff –30' · Ta Énergie km7 · Antiq Caff km14</td><td>3 gels total</td><td style="font-size:11px;color:var(--muted)">Stratégie validée à l'entraînement</td></tr>
+          <tr><td><b>Post-effort (tout)</b></td><td style="color:var(--purple)">Pure Recovery Nutripure</td><td>Dans les 30 min</td><td style="font-size:11px;color:var(--muted)">Priorité absolue</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Planning d'introduction des produits — Semaine par semaine</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;font-size:12px;">
+        <div style="background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:12px;">
+          <div style="color:var(--blue);font-weight:700;margin-bottom:6px;">S1–S6 · Bloc 1</div>
+          <div style="color:var(--muted);line-height:1.7;">Eau pure uniquement<br>Pas de gel encore<br>Habitue-toi aux longues</div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:12px;">
+          <div style="color:var(--green);font-weight:700;margin-bottom:6px;">S7–S8</div>
+          <div style="color:var(--muted);line-height:1.7;">1er test boisson isotonique Ta Énergie<br>S7 sortie longue 19 km<br>Observer tolérance digestive</div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:12px;">
+          <div style="color:var(--green);font-weight:700;margin-bottom:6px;">S9–S10</div>
+          <div style="color:var(--muted);line-height:1.7;">1er test gel Ta Énergie Liquide<br>1 gel à 40 min sur la longue<br>Tester 2 saveurs différentes</div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:12px;">
+          <div style="color:var(--green);font-weight:700;margin-bottom:6px;">S11–S12 ⭐</div>
+          <div style="color:var(--muted);line-height:1.7;">21 km avec gels tous les 45 min<br>Stratégie gel+boisson<br>Teste Pure Recovery post-longue</div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:12px;">
+          <div style="color:var(--green);font-weight:700;margin-bottom:6px;">S13</div>
+          <div style="color:var(--muted);line-height:1.7;">1er test gel Overstims Punch Power<br>Trail 20 km : barre Ta Énergie<br>Observer tolérance</div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:12px;">
+          <div style="color:var(--gold);font-weight:700;margin-bottom:6px;">S14 · Semi-test</div>
+          <div style="color:var(--muted);line-height:1.7;">1er test gel Antiq Caffeine<br>–30 min avant ou km 14<br>Valider la tolérance caféine</div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:12px;">
+          <div style="color:var(--gold);font-weight:700;margin-bottom:6px;">S15–S20 · Bloc 3</div>
+          <div style="color:var(--muted);line-height:1.7;">Stratégie Rome complète à tester<br>Alterner Ta Énergie / Overstims<br>Affiner timing des gels</div>
+        </div>
+        <div style="background:rgba(255,68,34,.08);border:1px solid rgba(255,68,34,.2);border-radius:4px;padding:12px;">
+          <div style="color:var(--accent);font-weight:700;margin-bottom:6px;">S25 · ROME 🏛️</div>
+          <div style="color:var(--muted);line-height:1.7;">Stratégie 100% validée<br>Zéro produit nouveau<br>Antiq –30' · Ta Énergie km7 · Antiq km14</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAR BLOC -->
+  <div id="nutri-parbloc" class="nutri-view" style="display:none">
+    <div class="nutri-hero" style="background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(168,85,247,.05));border-color:rgba(59,130,246,.2);">
+      <h2 style="color:var(--blue)">NUTRITION PAR BLOC D'ENTRAÎNEMENT</h2>
+      <p>L'alimentation évolue avec l'intensité du plan. Chaque bloc a ses propres besoins énergétiques et ses priorités nutritionnelles spécifiques. Adapter ton assiette à ton entraînement, c'est récupérer 2× plus vite.</p>
+    </div>
+
+    <!-- BLOC 1 -->
+    <div style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:12px 16px;background:var(--s2);border-radius:6px;border-left:3px solid var(--blue);">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--blue)">BLOC 1 — Fondations</span>
+        <span style="font-size:11px;color:var(--muted)">Semaines 1–6 · Avr–Mai · ~2800 kcal/jour</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div class="card"><div class="card-title" style="color:var(--blue)">Objectif nutritionnel</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">Volume modéré, construire les bases. Priorité à l'apport glucidique pour alimenter les premières séances de course et les 4 séances de salle. Pas besoin de charger massivement — régularité avant tout.</div>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--blue)">Macros cibles</div>
+          <div style="font-size:12px;line-height:1.8;">
+            <div>🍞 Glucides : <b style="color:var(--gold)">5–6g/kg</b> <span style="color:var(--muted)">(290–350g/j)</span></div>
+            <div>🥩 Protéines : <b style="color:var(--accent)">1.6g/kg</b> <span style="color:var(--muted)">(~93g/j)</span></div>
+            <div>🥑 Lipides : <b style="color:var(--blue)">1.2g/kg</b> <span style="color:var(--muted)">(~70g/j)</span></div>
+            <div>💧 Eau : <b style="color:var(--cyan)">2–2.5L/j</b></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--blue)">Focus aliments</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">Riz, pâtes, flocons d'avoine · Poulet, œufs, thon · Huile d'olive, avocat · Légumes verts à chaque repas · Fruits à chaque collation. Commencer collagène + D3 dès S1.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOC 2 -->
+    <div style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:12px 16px;background:var(--s2);border-radius:6px;border-left:3px solid var(--green);">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green)">BLOC 2 — Développement</span>
+        <span style="font-size:11px;color:var(--muted)">Semaines 7–14 · Juin–Juil · ~3100 kcal/jour</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div class="card"><div class="card-title" style="color:var(--green)">Objectif nutritionnel</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">Intensité en forte hausse (1000m–2000m, trails). Monter les glucides pour alimenter les fractionnés. Protéines à 1.8g/kg pour soutenir la salle. Gels à tester dès S11. Chaleur estivale = +500ml d'eau/jour.</div>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--green)">Macros cibles</div>
+          <div style="font-size:12px;line-height:1.8;">
+            <div>🍞 Glucides : <b style="color:var(--gold)">6–7g/kg</b> <span style="color:var(--muted)">(350–406g/j)</span></div>
+            <div>🥩 Protéines : <b style="color:var(--accent)">1.8g/kg</b> <span style="color:var(--muted)">(~105g/j)</span></div>
+            <div>🥑 Lipides : <b style="color:var(--blue)">1.2g/kg</b> <span style="color:var(--muted)">(~70g/j)</span></div>
+            <div>💧 Eau : <b style="color:var(--cyan)">2.5–3L/j</b> <span style="color:var(--muted)">(chaleur)</span></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--green)">Focus aliments</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">Pasta party la veille des longues · Saumon 2×/sem (oméga-3) · Banane avant et après effort · Dattes pour collations rapides · Électrolytes si transpiration ++. Ajouter Pure Recovery post-longues.</div>
+        </div>
+      </div>
+      <div class="salle-tip" style="margin-top:10px;">💡 <strong>Juillet :</strong> La chaleur augmente les besoins en sodium et magnésium. Si tu transpires beaucoup, ajoute une pincée de sel dans ta boisson d'effort et vérifie tes crampes (signe de carence).</div>
+    </div>
+
+    <!-- BLOC 3 -->
+    <div style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:12px 16px;background:var(--s2);border-radius:6px;border-left:3px solid var(--gold);">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold)">BLOC 3 — Spécificité</span>
+        <span style="font-size:11px;color:var(--muted)">Semaines 15–20 · Août–Sept · ~3300 kcal/jour max</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div class="card"><div class="card-title" style="color:var(--gold)">Objectif nutritionnel</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">Semaines les plus exigeantes (25 km, 12 km tempo). Ne jamais être en déficit calorique. S18 = semaine de choc : manger +15% les 3 jours autour. Récup prioritaire, sommeil 8h+, collagène obligatoire.</div>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--gold)">Macros cibles</div>
+          <div style="font-size:12px;line-height:1.8;">
+            <div>🍞 Glucides : <b style="color:var(--gold)">7–8g/kg</b> <span style="color:var(--muted)">(406–465g/j)</span></div>
+            <div>🥩 Protéines : <b style="color:var(--accent)">1.8–2g/kg</b> <span style="color:var(--muted)">(105–116g/j)</span></div>
+            <div>🥑 Lipides : <b style="color:var(--blue)">1g/kg</b> <span style="color:var(--muted)">(~58g/j — réduit)</span></div>
+            <div>💧 Eau : <b style="color:var(--cyan)">2.5L/j min</b></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--gold)">Focus aliments</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">Patate douce (glycémie stable) · Riz blanc la veille des longues · Betterave (oxyde nitrique, +performance) · Cerise ou jus de griotte (anti-inflammatoire naturel) · Réduire les graisses les jours de course.</div>
+        </div>
+      </div>
+      <div class="salle-tip" style="margin-top:10px;border-color:rgba(245,166,35,.3);">⚡ <strong>Semaine 18 (choc) :</strong> Augmente les glucides à 8g/kg cette semaine. Le mardi soir avant le tempo du jeudi, fais un vrai "pasta party". Prépare 2 gels pour la sortie de 25–26 km du dimanche et prévois un repas chaud dans la demi-heure qui suit ton retour.</div>
+    </div>
+
+    <!-- BLOC 4 -->
+    <div style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:12px 16px;background:var(--s2);border-radius:6px;border-left:3px solid var(--accent);">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent)">BLOC 4 — Affûtage</span>
+        <span style="font-size:11px;color:var(--muted)">Semaines 21–25 · Octobre · 2600–2800 kcal/jour</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div class="card"><div class="card-title" style="color:var(--accent)">Objectif nutritionnel</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">Volume réduit → moins de calories MAIS maintenir les glucides élevés (recharge les réserves de glycogène). Erreur classique : manger moins parce qu'on s'entraîne moins. Ne pas le faire — les muscles se rechargent.</div>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--accent)">Macros cibles</div>
+          <div style="font-size:12px;line-height:1.8;">
+            <div>🍞 Glucides : <b style="color:var(--gold)">7–8g/kg</b> <span style="color:var(--muted)">(maintenir !)</span></div>
+            <div>🥩 Protéines : <b style="color:var(--accent)">1.8g/kg</b> <span style="color:var(--muted)">(maintenir)</span></div>
+            <div>🥑 Lipides : <b style="color:var(--blue)">0.9g/kg</b> <span style="color:var(--muted)">(réduire légèrement)</span></div>
+            <div>💧 Eau : <b style="color:var(--cyan)">2.5L/j</b></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--accent)">Protocole semaine de course</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;"><b style="color:var(--text)">J–3 à J–2 :</b> Augmenter glucides +30%<br><b style="color:var(--text)">J–1 :</b> Pasta party 19h · Pas de légumineuses ni légumes crus · Coucher 21h<br><b style="color:var(--text)">Matin course :</b> Flocons + banane + café · –3h avant le départ</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau récap -->
+    <div class="card">
+      <div class="card-title">Récapitulatif calories et macros par bloc</div>
+      <table class="exo-table">
+        <thead><tr><th>Bloc</th><th>kcal/jour estimé</th><th>Glucides</th><th>Protéines</th><th>Lipides</th><th>Eau</th></tr></thead>
+        <tbody>
+          <tr><td><b style="color:var(--blue)">Bloc 1</b> — Fondations</td><td style="font-family:'DM Mono',monospace">~2800</td><td>5–6g/kg · 290–350g</td><td>1.6g/kg · 93g</td><td>1.2g/kg · 70g</td><td>2–2.5L</td></tr>
+          <tr><td><b style="color:var(--green)">Bloc 2</b> — Développement</td><td style="font-family:'DM Mono',monospace">~3100</td><td>6–7g/kg · 350–406g</td><td>1.8g/kg · 105g</td><td>1.2g/kg · 70g</td><td>2.5–3L</td></tr>
+          <tr><td><b style="color:var(--gold)">Bloc 3</b> — Spécificité</td><td style="font-family:'DM Mono',monospace">~3300</td><td>7–8g/kg · 406–465g</td><td>1.8–2g/kg · 116g</td><td>1g/kg · 58g</td><td>2.5L+</td></tr>
+          <tr><td><b style="color:var(--accent)">Bloc 4</b> — Affûtage</td><td style="font-family:'DM Mono',monospace">~2700</td><td>7–8g/kg (maintenir !)</td><td>1.8g/kg · 105g</td><td>0.9g/kg · 52g</td><td>2.5L</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RECETTES -->
+  <div id="nutri-recettes" class="nutri-view" style="display:none">
+    <div class="nutri-hero" style="background:linear-gradient(135deg,rgba(249,115,22,.08),rgba(245,166,35,.05));border-color:rgba(249,115,22,.2);">
+      <h2 style="color:var(--orange)">RECETTES & IDÉES REPAS DU COUREUR</h2>
+      <p>Toutes les recettes sont simples (10–20 min de préparation), économiques et adaptées au timing d'entraînement. Chaque recette indique son moment idéal dans la journée d'entraînement.</p>
+    </div>
+
+    <!-- Petit-déj -->
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;">🌅 Petits-déjeuners pré-entraînement</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:28px;">
+
+      <div class="product-card" style="border-top:2px solid var(--gold);">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">⏰ 6h30 · 30 min avant salle</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;">Porridge Banane-Cannelle</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">
+          <b style="color:var(--text)">Ingrédients :</b> 80g flocons d'avoine · 1 banane écrasée · 250ml lait végétal · 1 c.c. cannelle · 1 c.s. miel · 20g noix de cajou<br>
+          <b style="color:var(--text)">Prépa :</b> Cuire les flocons avec le lait 3 min au micro-ondes. Écraser la banane dessus. Ajouter cannelle, miel, noix.<br>
+          <b style="color:var(--text)">Macros :</b> ~480 kcal · G: 75g · P: 12g · L: 14g
+        </div>
+        <div class="product-when">✅ Idéal avant salle ou avant footing matinal</div>
+      </div>
+
+      <div class="product-card" style="border-top:2px solid var(--gold);">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">⏰ 6h30 · Jour de course longue</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;">Toast Avocat-Œufs + Jus</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">
+          <b style="color:var(--text)">Ingrédients :</b> 3 tranches pain complet · ½ avocat · 2 œufs brouillés · sel, poivre, paprika · 1 grand verre jus d'orange<br>
+          <b style="color:var(--text)">Prépa :</b> Toaster le pain. Écraser l'avocat avec sel/paprika. Brouiller les œufs 2 min. Assembler. Jus d'orange frais si possible.<br>
+          <b style="color:var(--text)">Macros :</b> ~520 kcal · G: 58g · P: 22g · L: 22g
+        </div>
+        <div class="product-when">✅ 3h avant sortie longue · Facile à digérer</div>
+      </div>
+
+      <div class="product-card" style="border-top:2px solid var(--gold);">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">⏰ Semaine de récup · Version rapide</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;">Yaourt Grec + Granola Maison</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">
+          <b style="color:var(--text)">Ingrédients :</b> 200g yaourt grec 0% · 50g granola · 1 poignée myrtilles ou framboises · 1 c.s. miel · café noir<br>
+          <b style="color:var(--text)">Prépa :</b> Assembler en 2 min. Pas de cuisson.<br>
+          <b style="color:var(--text)">Macros :</b> ~420 kcal · G: 52g · P: 28g · L: 10g
+        </div>
+        <div class="product-when">✅ Post-salle · Repas récupération rapide</div>
+      </div>
+    </div>
+
+    <!-- Déjeuners -->
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--green);letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;">☀️ Déjeuners du coureur</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:28px;">
+
+      <div class="product-card" style="border-top:2px solid var(--green);">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">⏰ 12h · Jour d'entraînement double</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;">Bowl Riz Poulet Légumes</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">
+          <b style="color:var(--text)">Ingrédients :</b> 180g riz basmati cuit · 150g poulet grillé · courgette + poivron sautés · 1 c.s. sauce soja · 1 c.c. huile de sésame · graines de sésame<br>
+          <b style="color:var(--text)">Prépa :</b> Cuire le riz. Griller le poulet à la poêle 8 min. Sauter les légumes 5 min avec soja et sésame. Assembler.<br>
+          <b style="color:var(--text)">Macros :</b> ~650 kcal · G: 82g · P: 42g · L: 16g
+        </div>
+        <div class="product-when">✅ Repas type jour double séance salle + course</div>
+      </div>
+
+      <div class="product-card" style="border-top:2px solid var(--green);">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">⏰ 12h · Veille de sortie longue</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;">Pâtes Complètes Thon-Tomates</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">
+          <b style="color:var(--text)">Ingrédients :</b> 200g pâtes complètes · 1 boîte thon au naturel · 200g sauce tomate · ½ oignon · 1 c.s. huile d'olive · basilic<br>
+          <b style="color:var(--text)">Prépa :</b> Cuire les pâtes al dente. Faire revenir oignon + sauce tomate 5 min. Ajouter le thon égoutté. Mélanger avec les pâtes. Huile et basilic.<br>
+          <b style="color:var(--text)">Macros :</b> ~720 kcal · G: 95g · P: 40g · L: 14g
+        </div>
+        <div class="product-when">✅ Veille de sortie longue · Charge glucidique</div>
+      </div>
+
+      <div class="product-card" style="border-top:2px solid var(--green);">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">⏰ Déjeuner rapide · 10 min</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;">Salade Quinoa Saumon Avocat</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">
+          <b style="color:var(--text)">Ingrédients :</b> 180g quinoa cuit · 120g saumon (pavé ou fumé) · ½ avocat · tomates cerises · épinards frais · vinaigrette citron-huile d'olive<br>
+          <b style="color:var(--text)">Prépa :</b> Tout assembler en 5 min. Si saumon frais, 8 min à la poêle.<br>
+          <b style="color:var(--text)">Macros :</b> ~680 kcal · G: 55g · P: 40g · L: 30g
+        </div>
+        <div class="product-when">✅ Jour de repos · Oméga-3 + récupération</div>
+      </div>
+    </div>
+
+    <!-- Dîners -->
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--blue);letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;">🌙 Dîners récupération</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:28px;">
+
+      <div class="product-card" style="border-top:2px solid var(--blue);">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">⏰ 20h · Post-fractionné ou tempo</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;">Patate Douce Steak Brocolis</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">
+          <b style="color:var(--text)">Ingrédients :</b> 2 patates douces moyennes · 150g steak haché 5% MG · brocolis vapeur · 1 c.s. huile d'olive · ail · sel<br>
+          <b style="color:var(--text)">Prépa :</b> Four pour patates douces 25 min à 200°. Cuire le steak 3 min de chaque côté. Brocolis vapeur 8 min. Assaisonner.<br>
+          <b style="color:var(--text)">Macros :</b> ~680 kcal · G: 72g · P: 38g · L: 20g
+        </div>
+        <div class="product-when">✅ Post-séance intense · Récup glycogène + protéines</div>
+      </div>
+
+      <div class="product-card" style="border-top:2px solid var(--blue);">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">⏰ 20h · Pasta Party pré-longue</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;">Pasta Party Poulet-Parmesan</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">
+          <b style="color:var(--text)">Ingrédients :</b> 220g pâtes blanches · 150g escalope de poulet · 30g parmesan · 2 c.s. huile d'olive · 2 gousses d'ail · basilic frais<br>
+          <b style="color:var(--text)">Prépa :</b> Cuire pâtes al dente. Griller le poulet avec ail. Mélanger pâtes + huile + parmesan + poulet coupé. Basilic.<br>
+          <b style="color:var(--text)">Macros :</b> ~820 kcal · G: 105g · P: 48g · L: 22g
+        </div>
+        <div class="product-when">✅ Veille sortie longue / trail / course test</div>
+      </div>
+
+      <div class="product-card" style="border-top:2px solid var(--blue);">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">⏰ 20h · Jour de repos</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;">Omelette Complète + Soupe</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">
+          <b style="color:var(--text)">Ingrédients :</b> 4 œufs · 50g fromage râpé · épinards · tomates · bol de soupe maison ou lentilles corail · 2 tranches pain complet<br>
+          <b style="color:var(--text)">Prépa :</b> Omelette 5 min. Soupe réchauffée. Simple et nutritif.<br>
+          <b style="color:var(--text)">Macros :</b> ~580 kcal · G: 42g · P: 40g · L: 26g
+        </div>
+        <div class="product-when">✅ Jour de repos · Repas léger mais protéiné</div>
+      </div>
+    </div>
+
+    <!-- Collations -->
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--purple);letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;">⚡ Collations & Snacks intelligents</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px;">
+      <div class="sport-session"><div class="sport-session-name" style="color:var(--purple)">🍌 Banane + Beurre de cajou</div><div class="sport-session-desc">1 banane + 1 c.s. beurre de cajou · ~200 kcal · Idéal 30–45 min avant séance</div></div>
+      <div class="sport-session"><div class="sport-session-name" style="color:var(--purple)">🫐 Fromage blanc + Myrtilles</div><div class="sport-session-desc">200g fromage blanc 0% + myrtilles + miel · ~180 kcal · Collation post-salle légère</div></div>
+      <div class="sport-session"><div class="sport-session-name" style="color:var(--purple)">🥜 Mix Trail maison</div><div class="sport-session-desc">30g amandes + 20g noix de cajou + 20g abricots secs + 15g chocolat noir 70% · ~280 kcal · À emporter</div></div>
+      <div class="sport-session"><div class="sport-session-name" style="color:var(--purple)">🍞 Pain complet + Miel + Confiture</div><div class="sport-session-desc">2 tranches + miel + confiture maison · ~250 kcal · 2h avant séance soir</div></div>
+      <div class="sport-session"><div class="sport-session-name" style="color:var(--purple)">🍫 Chocolat noir 70%+ Dattes</div><div class="sport-session-desc">2 carrés chocolat noir + 3 dattes · ~160 kcal · Antioxydants + sucre rapide</div></div>
+      <div class="sport-session"><div class="sport-session-name" style="color:var(--purple)">🥛 Shaker récup maison</div><div class="sport-session-desc">30g whey Nutripure + 1 banane + 250ml lait végétal + 1 c.s. miel · ~380 kcal · Si pas de Pure Recovery</div></div>
+    </div>
+  </div>
+
+  <!-- POIDS & CORPS -->
+  <div id="nutri-poids" class="nutri-view" style="display:none">
+    <div class="nutri-hero" style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(59,130,246,.05));border-color:rgba(16,185,129,.2);">
+      <h2 style="color:var(--green)">GESTION DU POIDS & RECOMPOSITION CORPORELLE</h2>
+      <p>À 58 kg / 170 cm, ton IMC est de 20.1 — plage idéale pour un coureur de semi. <strong>L'objectif n'est pas de maigrir</strong> mais de gagner en densité musculaire tout en restant léger. La recomposition se fait naturellement avec l'entraînement si la nutrition est bien gérée.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
+      <div class="stat-box"><div class="stat-label">Poids actuel</div><div class="stat-val blue">58 kg</div><div class="stat-sub">IMC 20.1 — optimal coureur</div></div>
+      <div class="stat-box"><div class="stat-label">Poids course idéal</div><div class="stat-val" style="color:var(--green)">57–59 kg</div><div class="stat-sub">Ne pas chercher à descendre sous 56 kg</div></div>
+      <div class="stat-box"><div class="stat-label">% masse grasse estimé</div><div class="stat-val gold">12–15%</div><div class="stat-sub">Zone performance pour un coureur</div></div>
+      <div class="stat-box"><div class="stat-label">Objectif recompo</div><div class="stat-val accent">+Muscle</div><div class="stat-sub">–Graisse → même poids, + performance</div></div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="card">
+        <div class="card-title" style="color:var(--green)">Pourquoi NE PAS chercher à maigrir</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.8;">
+          À 58 kg tu es déjà dans la zone optimale. Descendre sous 56 kg avec ce volume d'entraînement c'est risquer :<br><br>
+          <span style="color:var(--red)">❌</span> Perte de masse musculaire (tes jambes perdent leur force)<br>
+          <span style="color:var(--red)">❌</span> Déficit hormonal (testostérone, IGF-1 s'effondrent)<br>
+          <span style="color:var(--red)">❌</span> Blessures plus fréquentes (os et tendons fragilisés)<br>
+          <span style="color:var(--red)">❌</span> Récupération dégradée (moins de carburant pour reconstruire)<br>
+          <span style="color:var(--red)">❌</span> Contre-performance à Rome (pas d'énergie sur les derniers km)<br><br>
+          <span style="color:var(--green)">✅</span> <strong style="color:var(--text)">L'équation gagnante :</strong> même poids + plus de muscle = meilleur ratio puissance/poids
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--green)">Comment la recomposition se fait naturellement</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.8;">
+          Avec ton plan, la recomposition se fait <strong style="color:var(--text)">automatiquement</strong> si tu manges correctement :<br><br>
+          <span style="color:var(--green)">+</span> Séances salle → gain de masse musculaire jambes/dos<br>
+          <span style="color:var(--green)">+</span> 3–4 séances course/sem → perte de masse grasse progressive<br>
+          <span style="color:var(--green)">+</span> Protéines à 1.8g/kg → maintien et construction musculaire<br>
+          <span style="color:var(--green)">+</span> Whey post-salle → signal anabolique maximal<br><br>
+          <strong style="color:var(--text)">Résultat attendu sur 25 semaines :</strong><br>
+          +1–2 kg de muscle · –1–2 kg de graisse · Poids stable · Performance ++
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title">Signaux d'alerte — Quand l'alimentation pose problème</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:10px;">🚨 Tu ne manges pas assez si :</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.8;">
+            • Fatigue persistante même après les semaines de récup<br>
+            • Performance qui stagne ou régresse malgré l'entraînement<br>
+            • Humeur irritable, concentration difficile<br>
+            • Blessures répétées (tendons, stress fractures)<br>
+            • Récupération musculaire très lente (DOMS &gt;4 jours)<br>
+            • Perte de poids non voulue &gt;1 kg sur une semaine de charge<br>
+            • Envie de sucre incontrôlable en fin de journée
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:10px;">⚠️ Tu manges mal si :</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.8;">
+            • Saut de repas ou repas très légers le matin<br>
+            • Pas de glucides dans les 30 min post-effort<br>
+            • Protéines concentrées sur 1–2 repas seulement<br>
+            • Déshydratation (urine foncée en début de journée)<br>
+            • Trop de lipides les jours de séance intense (digestibilité)<br>
+            • Alcool pendant les semaines de choc (Blocs 2–3)<br>
+            • Régime restrictif les semaines avant Rome
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title">Suivi du poids — Comment l'utiliser intelligemment</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8;">
+        <strong style="color:var(--text)">Quand peser :</strong> 1 fois par semaine maximum, le matin à jeun, même jour (ex: lundi matin). Pas après une sortie longue (déshydratation fausse le résultat).<br><br>
+        <strong style="color:var(--text)">Ce que tu vas observer :</strong><br>
+        • <b>Bloc 1</b> : Poids stable ou +0.5–1 kg (gain musculaire début)<br>
+        • <b>Bloc 2</b> : –0.5 à –1 kg (cardio augmente, graisse diminue légèrement)<br>
+        • <b>Bloc 3</b> : Poids très stable (tout est utilisé pour la performance)<br>
+        • <b>Bloc 4</b> : +0.5 à +1 kg (glycogène se recharge = eau intramusculaire) — <span style="color:var(--green)">c'est normal et positif !</span><br><br>
+        <strong style="color:var(--text)">Variation normale semaine à semaine :</strong> ±1.5 kg = normal (hydratation, glycogène, transit). Ne pas paniquer pour une variation de 1 kg.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Aliments à privilégier vs limiter pour la recomposition</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;font-size:12px;">
+        <div>
+          <div style="color:var(--green);font-weight:700;margin-bottom:8px;">✅ Privilégier (quotidiennement)</div>
+          <div style="color:var(--muted);line-height:1.9;">
+            🥚 Œufs entiers (protéines + graisses saines)<br>
+            🐟 Saumon, sardines, maquereau (oméga-3)<br>
+            🍠 Patate douce, riz, avoine (glucides complexes)<br>
+            🥦 Brocolis, épinards, betterave (micronutriments)<br>
+            🫐 Fruits rouges (antioxydants, récup tendinite)<br>
+            🥑 Avocat, huile d'olive, noix (lipides qualité)<br>
+            🥛 Yaourt grec, fromage blanc (caséine nocturne)<br>
+            🍋 Jus de citron le matin (alcalinisant)<br>
+          </div>
+        </div>
+        <div>
+          <div style="color:var(--red);font-weight:700;margin-bottom:8px;">❌ Limiter (pas éliminer)</div>
+          <div style="color:var(--muted);line-height:1.9;">
+            🍺 Alcool (inhibe la synthèse protéique 24–48h)<br>
+            🍔 Ultra-transformés (inflammation, récup dégradée)<br>
+            🥤 Sodas sucrés (pics glycémiques non utiles)<br>
+            🧀 Fromages gras en grandes quantités<br>
+            🍩 Viennoiseries le matin des séances intenses<br>
+            🥗 Crudités et légumineuses la veille des longues (ballonnements)<br>
+            🥃 Alcool la veille de toute séance clé<br>
+            🌭 Charcuterie type saucisson (sel + graisses saturées)<br>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- end main -->
+
+<script>
+// ══════════════════════════════════════════════
+// DATA — 25 SEMAINES
+// ══════════════════════════════════════════════
+const WEEKS_DATA = [
+  {num:1,bloc:1,tag:"CHARGE",titre:"Mise en route — Calibrage",
+   note:"Prends tes repères. Calibre tes allures Z2 (tu dois pouvoir parler) et Z5 (inconfort contrôlé).",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage face",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"8×400m Z5 · Échauff 15 min · 8×400m allure 3'30\"/km · Récup 90 sec · ~10 km",km:10}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Squat bulgare 4×12 · Fentes marchées 3×15 · Step-up 3×12 · Good morning 3×12 · Mollets 4×20 · Gainage 3×45\"",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"45 min · Crawl endurance · 20×50m avec 20 sec récup",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir · Récup active · Décontracté",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"3×8 min à 4'15\"–4'20\"/km · Échauff 15 min · 3 blocs 8 min · Récup 3 min · ~11 km",km:11}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Bird dog · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"14 km Z2 · Allure 5'10\"–5'20\"/km · Terrain plat · Teste ta nutrition de course",km:14}],
+   }},
+  {num:2,bloc:1,tag:"CHARGE",titre:"Côtes + Premiers blocs tempo",
+   note:"Première séance côtes : effort maximal en montée, descente = récup complète. Pas de chrono.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"CÔTES",color:"#f5a623",det:"8×200m côte 5–8% · Échauff 15 min · 8 rép max en montée · Descente récup · ~9 km",km:9}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES B",color:"#10b981",det:"Sauts box 3×10 · Squat sauté 3×10 · Fentes sautées 3×12 · Hip thrust 4×12 · Mollets sautés 3×12",km:0}],
+    MER:[{slot:"MATIN",act:"VÉLO",color:"#f97316",det:"1h route ou home trainer · Z2 tranquille · Cadence souple",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"3×8 min à 4'15\"/km · Échauff 15 min · ~11 km",km:11}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"16 km Z2 · Allure 5'00\"–5'15\"/km · Terrain légèrement vallonné",km:16}],
+    DIM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+   }},
+  {num:3,bloc:1,tag:"RÉCUP",titre:"Récupération — Volume –30%",
+   note:"Semaine de récup : le corps s'adapte ici. Ne transforme pas ces séances en séances intenses.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Volume réduit · Développé 3×8 · Pec fly 3×10 · Triceps 3×10 · Gainage 3×30\"",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"6×400m léger · Échauff 12 min · 6×400m Z5 · Récup 90 sec · ~8 km",km:8}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Volume réduit · Squat bulgare 3×10 · Fentes 3×12 · Mollets 3×15 · Gainage",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"45 min · Nage libre Z1 · Récupération articulaire · Pas d'intensité",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir · Décontracté",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Volume réduit · Lat pull down 3×8 · Seated row 3×8 · Curl 3×10 · Gainage 3×30\"",km:0}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Séance normale légère",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"30 min Z1 très lent · Pas de contrainte · +15 min étirements",km:5}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"12 km Z2 pur · Pas de blocs · Terrain plat · Écoute ton corps",km:12}],
+   }},
+  {num:4,bloc:1,tag:"CHARGE",titre:"800m + Tempo progressif",
+   note:"Les 800m développent ta VMA. Effort soutenu mais contrôlé — pas un sprint. Récup 2 min entre chaque.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"6×800m Z5 · Échauff 15 min · 6×800m allure 3'32\"/km · Récup 2 min trot · ~13 km",km:13}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES B",color:"#10b981",det:"Sauts box 4×8 · Squat sauté 3×10 · Fentes sautées 3×12 · Hip thrust 4×12 · Step-up box 3×12 · Mollets sautés 3×12 · Gainage",km:0}],
+    MER:[{slot:"MATIN",act:"VÉLO",color:"#f97316",det:"1h route · Z2 · Terrain varié · Profite du paysage",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"2×15 min allure semi · Bloc1: 4'20\"/km · Récup 4 min · Bloc2: 4'15\"/km · ~13 km",km:13}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"17 km + 3 km progression · 14 km Z2 puis 3 km finaux à 4'40\"/km",km:17}],
+   }},
+  {num:5,bloc:1,tag:"CHARGE",titre:"Trail découverte + Fartlek",
+   note:"Trail dimanche : pas de chrono, marcher les montées raides est normal. L'objectif = temps sur pieds.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"FARTLEK",color:"#f5a623",det:"Fartlek 30 min · Échauff 12 min · 1 min fort Z5 / 2 min lent Z2 · Retour 10 min · ~10 km",km:10}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Squat bulgare 4×14 · Fentes marchées 3×15 · Good morning 3×12 · Mollets 4×18 · Fentes sautées 3×10",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"50 min · 10×100m avec 30 sec récup · Régularité et allure",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"CÔTES",color:"#f5a623",det:"6×300m côte · Échauff 15 min · 6×300m effort soutenu · Descente récup · ~9 km",km:9}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos · Prépare tenue trail et ravitaillement pour demain",km:0}],
+    DIM:[{slot:"WE",act:"TRAIL",color:"#10b981",det:"Trail 16–18 km · D+ 300–400m · Allure confort · Ex: Garrigues Montpellier",km:17}],
+   }},
+  {num:6,bloc:1,tag:"RÉCUP",titre:"Récupération — Fin Bloc 1",
+   note:"Fin du Bloc 1 ! 6 semaines solides. Le Bloc 2 monte en intensité — récupère bien cette semaine.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Volume réduit · Développé 3×8 · Pec fly 3×10 · Triceps 3×10 · Gainage 3×30\"",km:0},{slot:"SOIR",act:"CÔTES",color:"#f5a623",det:"6×150m côte effort moyen · Footing 10 min aller-retour · ~7 km",km:7}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Volume réduit · Squat bulgare 3×10 · Fentes 3×12 · Mollets 3×15 · Gainage",km:0}],
+    MER:[{slot:"MATIN",act:"VÉLO",color:"#f97316",det:"45 min home trainer · Z1 pur · Conversation facile tout le temps",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Volume réduit · Lat pull down 3×8 · Seated row 3×8 · Curl 3×10 · Gainage 3×30\"",km:0}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Séance normale légère",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"35 min Z1 + 20 min étirements · Automassage mollets et IT band",km:6}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"12 km Z2 tranquille · Terrain plat",km:12}],
+   }},
+  // BLOC 2
+  {num:7,bloc:2,tag:"CHARGE",titre:"1000m + Montée en volume",
+   note:"Bloc 2 : les séances deviennent sérieuses. Les 1000m doivent faire vraiment mal — c'est voulu.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"5×1000m Z5 · Échauff 15 min + éducatifs · 5×1000m allure 3'30\"/km · Récup 2'30\" trot · ~14 km",km:14}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES B",color:"#10b981",det:"Sauts en longueur 3×8 · Fentes sautées 3×12 · Squat bulgare lesté 4×10 · Hip thrust lourd 4×10 · Mollets 1 jambe 4×12",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"55 min · 8×100m Z3 + 4×200m Z2 · Régularité de nage",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"3×12 min à 4'15\"/km · Échauff 15 min · 3 blocs 12 min · Récup 3 min trot · ~13 km",km:13}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"19 km · 15 km Z2 + 4 km finaux à 4'20\"/km · Terrain varié · Test gel",km:19}],
+   }},
+  {num:8,bloc:2,tag:"CHARGE",titre:"Côtes longues + Trail technique",
+   note:"Les 400m en côte sont la séance la plus dure pour les jambes. Descente complète entre chaque.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"CÔTES",color:"#f5a623",det:"6×400m côte 5–8% · Échauff 15 min · 6×400m montée effort soutenu · Descente récup 2 min · ~10 km",km:10}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Squat bulgare 4×12 · Step-up box haltères 3×12 · Good morning 3×12 · Mollets lestés 4×20 · Gainage 3×45\" · Pont fessier 3×15",km:0}],
+    MER:[{slot:"MATIN",act:"VÉLO",color:"#f97316",det:"1h route · Z2 souple · Profite du paysage",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage haltères · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"4×1200m Z5 · Échauff 15 min · 4×1200m allure 3'30\"/km · Récup 3 min trot · ~14 km",km:14}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos · Prépare tenue trail pour demain",km:0}],
+    DIM:[{slot:"WE",act:"TRAIL",color:"#10b981",det:"Trail 18 km · D+ 500–600m · Descentes techniques · Ex: Pic St-Loup, Gardiole",km:18}],
+   }},
+  {num:9,bloc:2,tag:"RÉCUP",titre:"Récupération active — Mi-bloc 2",
+   note:"Semaine de récup au milieu du Bloc 2. Maintien intensité, volume –30%.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Volume réduit · Développé 3×8 · Pec fly 3×10 · Triceps 3×10 · Gainage 3×30\"",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"6×600m Z5 · Échauff 12 min · 6×600m allure 3'30\"/km · Récup 2 min · ~10 km",km:10}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Volume réduit · Squat bulgare 3×10 · Fentes 3×12 · Mollets 3×15 · Gainage",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"45 min · Nage Z1–Z2 tranquille · Récup articulaire",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Volume réduit · Lat pull down 3×8 · Seated row 3×8 · Curl 3×10 · Gainage 3×30\"",km:0}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Séance normale légère",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"40 min Z1 + 20 min étirements chaîne postérieure",km:7}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"15 km Z2 pur · Pas de blocs · Terrain plat",km:15}],
+   }},
+  {num:10,bloc:2,tag:"CHARGE",titre:"1200m + Course Test 10 km",
+   note:"COURSE TEST : objectif <46'. Pars à 4'36\"/km — c'est un indicateur, pas une course à fond.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"4×1200m Z5 · Échauff 15 min · 4×1200m allure 3'30\"/km · Récup 3 min trot · ~14 km",km:14}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES B",color:"#10b981",det:"Sauts box 4×8 · Squat sauté lesté 3×10 · Fentes sautées 3×12 · Hip thrust barre 4×12 · Gainage anti-rotation 3×12",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"55 min · 6×150m Z3 + 2×400m Z2 · Régularité et technique",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"20 min Z1 + 4×100m accélérations · Jambes fraîches pour le test",km:5}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet · Prépare matériel test",km:0}],
+    DIM:[{slot:"WE",act:"COURSE TEST",color:"#ff4422",det:"10 km TEST · Objectif <46'00\" (4'36\"/km) · Parcours plat · Échauff 15 min avant",km:12}],
+   }},
+  {num:11,bloc:2,tag:"CHARGE",titre:"21 km — Première distance semi !",
+   note:"21 km pour la 1ère fois ! Allure Z2 stricte — le but est l'adaptation. Teste tes gels aujourd'hui.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"FARTLEK",color:"#f5a623",det:"Fartlek collines 45 min · Accélérer sur les montées · Récup descentes · ~9 km",km:9}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Squat bulgare 4×10 max · Hip thrust barre 4×12 · Good morning 3×12 · Mollets 1 jambe 4×12 · Gainage 3×1 min",km:0}],
+    MER:[{slot:"MATIN",act:"VÉLO",color:"#f97316",det:"1h route ou home trainer · Z2 · Récupère les jambes pour dimanche",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"4×10 min à 4'15\"/km · Échauff 15 min · 4 blocs 10 min · Récup 2'30\" trot · ~15 km",km:15}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"21 km Z2 · 5'00\"–5'10\"/km · PREMIÈRE FOIS À DISTANCE SEMI ! · Teste 1 gel toutes les 45 min",km:21}],
+   }},
+  {num:12,bloc:2,tag:"RÉCUP",titre:"Récupération — Post 21 km",
+   note:"Récup après la première longue à 21 km. Natation idéale cette semaine pour les articulations.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Volume réduit · Développé 3×8 · Pec fly 3×10 · Triceps 3×10 · Gainage 3×30\"",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"8×200m allure 5 km · 8×200m à 3'20\"/km · Récup 2 min marche · ~8 km",km:8}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Volume réduit · Squat bulgare 3×10 · Fentes 3×12 · Mollets 3×15 · Gainage",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"45 min · Nage libre Z1 · Récupération articulaire pure",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Volume réduit · Lat pull down 3×8 · Seated row 3×8 · Curl 3×10 · Gainage",km:0}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Séance normale légère",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"40 min Z1 + automassage mollets et IT band · Étirements complets",km:7}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"16 km Z2 tranquille · Pas de blocs",km:16}],
+   }},
+  {num:13,bloc:2,tag:"CHARGE",titre:"2000m + Trail exigeant",
+   note:"Semaine chargée avec trail samedi et longue dimanche. Bien dormir et manger entre les deux.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"3×2000m Z4–Z5 · 3×2000m à 3'45\"/km · Récup 3'30\" trot · ~14 km",km:14}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES B",color:"#10b981",det:"Fentes sautées 4×12 · Squat bulgare 4×12 · Hip thrust lourd 4×10 · Step-up rapide 3×12 · Gainage 3×1 min",km:0}],
+    MER:[{slot:"MATIN",act:"VÉLO",color:"#f97316",det:"1h route · Z2 · Terrain varié",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"3×15 min à 4'15\"/km · Échauff 15 min · 3 blocs 15 min · Récup 3 min trot · ~17 km",km:17}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"TRAIL",color:"#10b981",det:"Trail 20 km · D+ 700–800m · Gestion effort en côte · Ex: Mireval, Hortus, St Guilhem",km:20}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"22 km · 17 km Z2 + 5 km finaux à 4'20\"/km · Simulation fin de course",km:22}],
+   }},
+  {num:14,bloc:2,tag:"PEAK",titre:"SEMI-TEST — Course officielle juillet",
+   note:"SEMI-TEST : objectif 1h40–1h42. Départ prudent à 4'50\"/km. Cherche course officielle en région.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"4×800m à allure 10 km · 4×800m à 4'10\"/km · Récup 2 min · ~10 km",km:10}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Volume réduit · Squat bulgare 3×10 · Fentes légères · Gainage · Jambes fraîches pour le semi",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"40 min · Z1 pur · Récupération · Prépare le semi-test",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Séance normale",km:0}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Séance normale légère",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"20 min Z1 + 4×80m accélérations · Repos ensuite · Jambes fraîches",km:5}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet · Prépare matériel de course · Bonne nuit",km:0}],
+    DIM:[{slot:"WE",act:"COURSE TEST",color:"#ff4422",det:"SEMI-TEST 21,1 km · Objectif 1h40–1h42 · Départ 4'50\"/km · Course officielle si possible",km:25}],
+   }},
+  // BLOC 3
+  {num:15,bloc:3,tag:"CHARGE",titre:"Retour de bloc — 8 km spécifique",
+   note:"LA séance clé du plan : 8 km continus à 4'15\"/km jeudi soir. Si tu la réussis, le 1h30 est acquis.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"5×1000m + 5×400m · 5×1000m Z5, récup 5 min, 5×400m allure 5 km · ~16 km",km:16}],
+    MAR:[{slot:"7h–8h",act:"SALLE ENTRETIEN",color:"#10b981",det:"Squat bulgare 3×10 · Hip thrust 3×12 · Mollets 3×20 · Gainage 3×45\" · 35 min",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"55 min · 5×200m Z3 + 10×50m Z4 · Intensité et technique",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"8 km continus à 4'15\"/km · Échauff 15 min · 8 km allure semi exacte · ~13 km",km:13}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos · Vélo optionnel 30 min Z1",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"23 km · 15 km Z2 + 8 km finaux à 4'15\"–4'20\"/km · Bilan fatigue à allure cible",km:23}],
+   }},
+  {num:16,bloc:3,tag:"CHARGE",titre:"Côtes explosives + Volume max",
+   note:"10×200m côte à effort maximal — la séance la plus explosive. Récup complète entre chaque rép.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"CÔTES",color:"#f5a623",det:"10×200m côte max · 10×200m montée effort total · Descente récup ~2 min · ~10 km",km:10}],
+    MAR:[{slot:"7h–8h",act:"SALLE ENTRETIEN",color:"#10b981",det:"Squat bulgare 3×10 · Hip thrust 3×12 · Mollets 3×20 · Gainage 3×45\" · 35 min",km:0}],
+    MER:[{slot:"MATIN",act:"VÉLO",color:"#f97316",det:"1h route · Z2 · Récupère après les côtes d'hier",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage haltères · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"3×15 min à 4'15\"/km · Échauff 15 min · 3 blocs 15 min · Récup 3 min trot · ~17 km",km:17}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"24 km · 14 km Z2 + 10 km finaux à 4'20\"/km · Simulation fin de Rome",km:24}],
+   }},
+  {num:17,bloc:3,tag:"RÉCUP",titre:"Récupération — Corps et tête",
+   note:"Récupération mentale aussi. Semaine légère pour recharger avant les 2 semaines les plus dures.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Volume réduit · Développé 3×8 · Pec fly 3×10 · Triceps 3×10 · Gainage 3×30\"",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"8×300m allure 5 km · 8×300m légers · Récup 90 sec · ~8 km",km:8}],
+    MAR:[{slot:"7h–8h",act:"SALLE ENTRETIEN",color:"#10b981",det:"Ultra-léger · Squat bulgare 2×10 · Mollets 2×15 · Gainage 2×45\" · 20 min",km:0}],
+    MER:[{slot:"MATIN",act:"VÉLO",color:"#f97316",det:"40 min home trainer · Z1 pur · Zéro intensité",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Volume réduit · Lat pull down 3×8 · Seated row 3×8 · Curl 3×10 · Gainage",km:0}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Séance légère",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"40 min Z1 décontracté · Pas de contrainte d'allure",km:7}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"TRAIL",color:"#10b981",det:"Trail détendu 16 km · D+ 200m · Allure plaisir, pas de chrono",km:16}],
+   }},
+  {num:18,bloc:3,tag:"PEAK",titre:"SEMAINE DE CHOC — Volume maximum",
+   note:"SEMAINE LA PLUS EXIGEANTE. 12 km tempo + 25 km longue. Dors 8h, mange bien, récupère ensuite.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"4×1500m Z5 · 4×1500m à 3'35\"/km · Récup 3 min trot · ~15 km",km:15}],
+    MAR:[{slot:"7h–8h",act:"SALLE ENTRETIEN",color:"#10b981",det:"Squat bulgare 3×10 · Hip thrust 3×12 · Mollets 3×20 · Gainage 3×45\" · 35 min",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"45 min Z1–Z2 · Récup active · Prépare le tempo de demain",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"12 km continus à 4'18\"/km · Échauff 15 min · 12 km allure semi · Retour 10 min · ~17 km",km:17}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet · Mange bien · Dors ++ · Prépare les gels pour demain",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"25–26 km · 15 km Z2 + 10 km finaux à 4'20\"/km · 1 gel à 7 km et 14 km · Terrain plat max",km:26}],
+   }},
+  {num:19,bloc:3,tag:"CHARGE",titre:"10 km Test Septembre + Trail",
+   note:"10km TEST : objectif <43'30\". Ce résultat te dira exactement ce que tu peux faire à Rome.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"CÔTES",color:"#f5a623",det:"8×200m côte max · 8×200m explosifs · Descente récup · ~8 km",km:8}],
+    MAR:[{slot:"7h–8h",act:"SALLE ENTRETIEN",color:"#10b981",det:"Squat bulgare 3×10 · Hip thrust 3×12 · Mollets 3×20 · Gainage 3×45\" · 35 min",km:0}],
+    MER:[{slot:"MATIN",act:"VÉLO",color:"#f97316",det:"1h route Z2 · Récupération active après les côtes",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl · Gainage lat",km:0}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"20 min Z1 + 4×100m strides · Jambes fraîches pour le test",km:5}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"20 min footing Z1 très lent + 4×80m accélérations · Repos après",km:3}],
+    DIM:[{slot:"WE",act:"COURSE TEST",color:"#ff4422",det:"10 km COURSE TEST · Objectif <43'30\" (4'21\"/km) · Départ prudent · Accélère au 5ème km",km:12}],
+   }},
+  {num:20,bloc:3,tag:"RÉCUP",titre:"Récupération — Fin Bloc 3",
+   note:"Fin du Bloc 3. Tu as fait le plus gros. Le Bloc 4 c'est uniquement de la gestion et de la fraîcheur.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Volume réduit · Développé 3×8 · Pec fly 3×10 · Triceps 3×10 · Gainage 3×30\"",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"6×400m Z5 · 6×400m allégés · Récup 2 min · ~8 km",km:8}],
+    MAR:[{slot:"7h–8h",act:"SALLE ENTRETIEN",color:"#10b981",det:"Ultra-léger · Squat bulgare 2×10 · Mollets 2×15 · Gainage 2×45\" · 20 min",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"45 min Z1 · Récup articulaire · Pas d'intensité",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Volume réduit · Lat pull down 3×8 · Seated row 3×8 · Curl 3×10 · Gainage",km:0}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Séance légère",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"35 min Z1 + étirements + automassage mollets et IT band",km:6}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"16 km Z2 · Pas d'intensité · Récup complète",km:16}],
+   }},
+  // BLOC 4
+  {num:21,bloc:4,tag:"CHARGE",titre:"Dernière charge — Dernière longue",
+   note:"Dernière semaine de charge. Après, l'affûtage commence. La forme arrive dans 4 semaines.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Développé incliné · Supine · Pec fly · Dips · Triceps poulie · Gainage",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"5×1000m Z5 · 5×1000m à 3'30\"/km · Récup 2 min trot · ~14 km · Dernière VMA",km:14}],
+    MAR:[{slot:"7h–8h",act:"SALLE ENTRETIEN",color:"#10b981",det:"Squat bulgare 3×10 · Hip thrust 3×12 · Mollets 3×20 · Gainage 3×45\" · 35 min",km:0}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"45 min · Z2 · Maintien cardio · Dernière natation intensive",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Lat pull down · Seated row · Tirage barre · Curl machine · Curl poulie · Gainage lat",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"2×5 km à 4'15\"/km · 2 blocs 5 km allure semi · Récup 4 min trot · ~15 km",km:15}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos · Vélo optionnel 30 min Z1",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"22 km · 16 km Z2 + 6 km finaux à 4'15\"/km · DERNIÈRE SORTIE LONGUE avant Rome",km:22}],
+   }},
+  {num:22,bloc:4,tag:"AFFÛTAGE",titre:"Transition — Volume –25%",
+   note:"Volume –25%. Pas de sortie longue — les jambes rechargent. Maintien de l'intensité.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Volume réduit · Développé 3×8 · Pec fly 3×10 · Triceps 3×10 · Gainage 3×30\"",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"4×1000m Z5 · 4×1000m · Récup 2 min · ~12 km · Maintien VMA",km:12}],
+    MAR:[{slot:"7h–8h",act:"SALLE ENTRETIEN",color:"#10b981",det:"Squat bulgare 3×10 · Mollets 3×15 · Gainage 3×45\" · 30 min seulement",km:0}],
+    MER:[{slot:"MATIN",act:"VÉLO",color:"#f97316",det:"45 min home trainer · Z1–Z2 · Récup active",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Volume réduit · Lat pull down 3×8 · Seated row 3×8 · Curl 3×10 · Gainage",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"4×3 km à 4'15\"/km · 4×3 km allure semi · Récup 2 min trot · ~18 km",km:18}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"14 km Z2 tranquille · Dernier footing long avant l'affûtage final",km:14}],
+   }},
+  {num:23,bloc:4,tag:"AFFÛTAGE",titre:"Affûtage — Volume –40%",
+   note:"Volume –40%. Les sensations peuvent être étranges (jambes lourdes ou très légères) — c'est normal.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Ultra-réduit · Développé 3×8 · Triceps 3×10 · Gainage 3×30\" · 30 min max",km:0}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Ultra-léger · Squat bulgare 2×10 · Mollets 2×15 · Gainage 2×40\" · 20 min",km:0},{slot:"SOIR",act:"FRACTIONNÉ",color:"#ff4422",det:"6×400m vifs · 6×400m · Récup 90 sec · ~7 km · Légèreté",km:7}],
+    MER:[{slot:"MATIN",act:"NATATION",color:"#06b6d4",det:"30 min Z1 · Récupération articulaire pure",km:0},{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Ultra-réduit · Lat pull down 3×8 · Curl 3×10 · Gainage 3×30\" · 30 min max",km:0},{slot:"SOIR",act:"TEMPO",color:"#f5a623",det:"3×3 km à 4'15\"/km · 3×3 km allure semi · Récup 2 min · ~12 km",km:12}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Planche · Anti-rotation · Dead bug · Shoulder press · Face pull · Étirements",km:0}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos complet",km:0}],
+    DIM:[{slot:"WE",act:"SORTIE LONGUE",color:"#3b82f6",det:"16 km Z2 · Dernier long footing · Allure très confortable · Pas de blocs",km:16}],
+   }},
+  {num:24,bloc:4,tag:"AFFÛTAGE",titre:"Semaine J–7 — Activation pré-course",
+   note:"Si tu te sens lourd jeudi ou vendredi, c'est NORMAL. Fais confiance aux 24 semaines derrière toi.",
+   jours:{
+    LUN:[{slot:"7h–8h",act:"SALLE PUSH",color:"#a855f7",det:"Ultra-réduit · Développé 2×8 · Triceps 2×10 · Gainage 2×30\" · 20 min",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"8 km Z1 très facile · Allure 5'30\"–6'/km",km:8}],
+    MAR:[{slot:"7h–8h",act:"SALLE JAMBES A",color:"#10b981",det:"Ultra-léger · Squat bulgare 2×8 · Mollets 2×12 · Gainage 2×30\" · 15 min",km:0},{slot:"SOIR",act:"ACTIVATION",color:"#f5a623",det:"5 km Z1 + 3×1 km à 4'15\"/km · Confirmation allure · ~8 km",km:8}],
+    MER:[{slot:"MIDI",act:"PADEL",color:"#ec4899",det:"1h loisir · Dernier padel avant Rome",km:0}],
+    JEU:[{slot:"7h–8h",act:"SALLE PULL",color:"#a855f7",det:"Ultra-réduit · Lat pull down 2×8 · Curl 2×10 · Gainage 2×30\" · 20 min",km:0}],
+    VEN:[{slot:"7h–8h",act:"SALLE GAINAGE",color:"#a855f7",det:"Ultra-léger · Planche 2×30\" · Bird dog 2×8 · 15 min seulement",km:0},{slot:"SOIR",act:"FOOTING",color:"#3b82f6",det:"20 min Z1 + 4×80m accélérations · ~5 km · Dernier footing avant Rome",km:5}],
+    SAM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos · Voyage vers Rome · Prépare dossard et matériel",km:0}],
+    DIM:[{slot:"WE",act:"REPOS",color:"#4b5563",det:"Repos · Bonne nuit · Profite de Rome · Coucher 21h max",km:0}],
+   }},
+  {num:25,bloc:4,tag:"RACE",titre:"🏛️ ROME — 18 OCTOBRE 2026",
+   note:"Km 1–3 : 4'18\"–4'20\"/km · Km 4–15 : 4'13\"–4'15\"/km · Km 16–21 : tout donner · Gel à 7 km et 14 km.",
+   jours:{
+    LUN:[{slot:"",act:"REPOS",color:"#4b5563",det:"Hydratation ++ · Repas riches en glucides",km:0}],
+    MAR:[{slot:"",act:"REPOS",color:"#4b5563",det:"Marche légère Rome · Hydratation",km:0}],
+    MER:[{slot:"",act:"REPOS",color:"#4b5563",det:"Repos · Repas pâtes le soir · Coucher tôt",km:0}],
+    JEU:[{slot:"",act:"REPOS",color:"#4b5563",det:"Repos · Petit footing 15 min si besoin",km:0}],
+    VEN:[{slot:"",act:"REPOS",color:"#4b5563",det:"Repos complet · Dernier repas test · Coucher 21h",km:0}],
+    SAM:[{slot:"",act:"REPOS",color:"#4b5563",det:"Repos · Retrait dossard · Coucher 21h max",km:0}],
+    DIM:[{slot:"WE",act:"COURSE TEST",color:"#ff4422",det:"🏛️ SEMI-MARATHON DE ROME · 21,1 km · OBJECTIF : 1h30'00\" · 4'15\"/km · ROME T'ATTEND !",km:21}],
+   }},
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const STATE_KEY = 'rome2026_v3';
+let state = JSON.parse(localStorage.getItem(STATE_KEY) || '{}');
+// state[weekNum][dayKey][slotIndex] = true/false
+
+function saveState() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+
+function isChecked(wNum, day, idx) {
+  return !!(state[wNum] && state[wNum][day] && state[wNum][day][idx]);
+}
+
+function toggleCheck(wNum, day, idx, btn) {
+  if (!state[wNum]) state[wNum] = {};
+  if (!state[wNum][day]) state[wNum][day] = {};
+  state[wNum][day][idx] = !state[wNum][day][idx];
+  saveState();
+  btn.classList.toggle('checked');
+  btn.textContent = state[wNum][day][idx] ? '✓ Fait' : '○ Marquer fait';
+  updateStats();
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function switchTab(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  document.querySelector(`[data-tab="${id}"]`).classList.add('active');
+}
+
+function switchSalleTab(id) {
+  document.querySelectorAll('.salle-view').forEach(v => v.style.display = 'none');
+  document.querySelectorAll('.salle-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('salle-' + id).style.display = 'block';
+  event.target.classList.add('active');
+}
+
+function switchNutriTab(id) {
+  document.querySelectorAll('.nutri-view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nutri-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('nutri-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+// RENDER PLANNING
+// ══════════════════════════════════════════════
+const DAYS_ORDER = ['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
+const DAYS_LABELS = {LUN:'Lundi',MAR:'Mardi',MER:'Mercredi',JEU:'Jeudi',VEN:'Vendredi',SAM:'Samedi',DIM:'Dimanche'};
+const BLOC_COLORS_MAP = {1:'#3b82f6',2:'#10b981',3:'#f5a623',4:'#ff4422'};
+const BLOC_NAMES_MAP = {1:'BLOC 1 — Fondations',2:'BLOC 2 — Développement',3:'BLOC 3 — Spécificité',4:'BLOC 4 — Affûtage'};
+const TAG_BG = {CHARGE:'rgba(255,68,34,.08)',RÉCUP:'rgba(59,130,246,.08)',PEAK:'rgba(245,166,35,.08)',AFFÛTAGE:'rgba(168,85,247,.08)',RACE:'rgba(255,68,34,.15)'};
+
+function renderPlanning() {
+  const grid = document.getElementById('weeksGrid');
+  let html = '';
+  let currentBloc = 0;
+
+  WEEKS_DATA.forEach(wk => {
+    if (wk.bloc !== currentBloc) {
+      currentBloc = wk.bloc;
+      const bc = BLOC_COLORS_MAP[currentBloc];
+      html += `<div style="display:flex;align-items:center;gap:12px;margin:${currentBloc>1?'20px':'4px'} 0 8px;padding:10px 14px;background:var(--s2);border-radius:4px;border-left:3px solid ${bc}">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${bc}">${BLOC_NAMES_MAP[currentBloc]}</span>
+      </div>`;
+    }
+
+    const bc = BLOC_COLORS_MAP[wk.bloc];
+    const tagBg = TAG_BG[wk.tag] || 'rgba(255,255,255,.03)';
+    const weekId = `week-${wk.num}`;
+
+    // Count sessions
+    let totalSessions = 0, doneSessions = 0;
+    let weekKm = 0;
+    DAYS_ORDER.forEach(d => {
+      const entries = wk.jours[d] || [];
+      entries.forEach((s,i) => {
+        totalSessions++;
+        weekKm += s.km || 0;
+        if (isChecked(wk.num, d, i)) doneSessions++;
+      });
+    });
+    const pct = totalSessions > 0 ? Math.round(doneSessions/totalSessions*100) : 0;
+
+    html += `<div class="week-row" id="${weekId}" data-bloc="${wk.bloc}" data-titre="${wk.titre.toLowerCase()}">
+      <div class="week-header" onclick="toggleWeek('${weekId}')">
+        <div class="week-num" style="color:${bc}">S${String(wk.num).padStart(2,'0')}</div>
+        <div class="week-info">
+          <div class="week-title-text">${wk.titre}</div>
+          <div class="week-meta">
+            <span class="tag tag-${wk.tag.toLowerCase().replace('û','u')}">${wk.tag}</span>
+            <span style="font-size:10px;color:var(--muted);">${weekKm > 0 ? '~'+weekKm+' km course' : ''}</span>
+            <span style="font-size:10px;color:${pct>=100?'var(--green)':'var(--muted)'};">${doneSessions}/${totalSessions} séances${pct>=100?' ✓':''}</span>
+          </div>
+        </div>
+        <div style="width:80px;text-align:right;font-size:11px;color:${pct>=100?'var(--green)':'var(--muted)'};margin-right:8px;">${pct}%</div>
+        <div class="week-toggle">▼</div>
+      </div>
+      <div class="week-body" style="background:${tagBg}">
+        <div class="days-grid">`;
+
+    DAYS_ORDER.forEach(d => {
+      const entries = wk.jours[d] || [];
+      const isWE = d === 'SAM' || d === 'DIM';
+      html += `<div class="day-col${isWE?' weekend':''}">
+        <div class="day-label">${DAYS_LABELS[d]}</div>`;
+      if (entries.length === 0) {
+        html += `<div style="font-size:11px;color:var(--dim)">—</div>`;
+      } else {
+        entries.forEach((s, idx) => {
+          const checked = isChecked(wk.num, d, idx);
+          html += `<div class="session-entry${checked?' done':''}" style="border-left-color:${s.color}">
+            ${s.slot ? `<div class="session-slot" style="color:${slotColor(s.slot)}">[${s.slot}]</div>` : ''}
+            <div class="session-act" style="color:${s.color}">${s.act}</div>
+            <div class="session-det">${s.det}</div>
+            <button class="check-btn${checked?' checked':''}" onclick="toggleCheck(${wk.num},'${d}',${idx},this)">${checked?'✓ Fait':'○ Marquer fait'}</button>
+          </div>`;
+        });
+      }
+      html += `</div>`;
+    });
+
+    html += `</div>
+        <div class="week-note-bar">💡 ${wk.note}</div>
+      </div>
+    </div>`;
+  });
+
+  grid.innerHTML = html;
+}
+
+function slotColor(slot) {
+  if (slot.includes('7h')) return '#a855f7';
+  if (slot === 'MIDI') return '#ec4899';
+  if (slot === 'MATIN') return '#06b6d4';
+  if (slot === 'SOIR') return '#f5a623';
+  if (slot === 'WE') return '#3b82f6';
+  return '#6060a0';
+}
+
+function toggleWeek(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+function expandAll() { document.querySelectorAll('.week-row').forEach(w => w.classList.add('open')); }
+function collapseAll() { document.querySelectorAll('.week-row').forEach(w => w.classList.remove('open')); }
+
+function filterBloc(num, btn) {
+  document.querySelectorAll('.bloc-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.week-row').forEach(row => {
+    row.style.display = (num === 0 || parseInt(row.dataset.bloc) === num) ? 'block' : 'none';
+  });
+}
+
+function searchWeeks(val) {
+  const v = val.toLowerCase();
+  document.querySelectorAll('.week-row').forEach(row => {
+    row.style.display = (!v || row.dataset.titre.includes(v)) ? 'block' : 'none';
+    if (v) row.classList.add('open');
+  });
+}
+
+// ══════════════════════════════════════════════
+// STATS & DASHBOARD
+// ══════════════════════════════════════════════
+function updateStats() {
+  let total = 0, done = 0, salleDone = 0, salleTotal = 0, kmDone = 0, kmTotal = 350;
+  let b1t=0,b1d=0,b2t=0,b2d=0,b3t=0,b3d=0,b4t=0,b4d=0;
+  let weeksValidated = 0;
+  let recentItems = [];
+
+  WEEKS_DATA.forEach(wk => {
+    let wTotal = 0, wDone = 0;
+    DAYS_ORDER.forEach(d => {
+      const entries = wk.jours[d] || [];
+      entries.forEach((s, i) => {
+        total++;
+        wTotal++;
+        if (s.act.includes('SALLE')) salleTotal++;
+        const chk = isChecked(wk.num, d, i);
+        if (chk) {
+          done++;
+          wDone++;
+          if (s.act.includes('SALLE')) salleDone++;
+          kmDone += s.km || 0;
+          recentItems.push({name: s.act + (s.slot?` [${s.slot}]`:''), week: wk.num, day: DAYS_LABELS[d]});
+        }
+        // bloc counts
+        if (wk.bloc===1){b1t++;if(chk)b1d++;}
+        else if(wk.bloc===2){b2t++;if(chk)b2d++;}
+        else if(wk.bloc===3){b3t++;if(chk)b3d++;}
+        else if(wk.bloc===4){b4t++;if(chk)b4d++;}
+      });
+    });
+    if (wTotal > 0 && wDone >= wTotal * 0.8) weeksValidated++;
+  });
+
+  const pct = total > 0 ? Math.round(done/total*100) : 0;
+
+  document.getElementById('globalPct').textContent = pct + '%';
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('totalCount').textContent = '/ ' + total + ' total';
+  document.getElementById('doneBar').style.width = pct + '%';
+  document.getElementById('weeksValidated').textContent = weeksValidated;
+  document.getElementById('weeksBar').style.width = Math.round(weeksValidated/25*100) + '%';
+  document.getElementById('salleDone').textContent = salleDone;
+  document.getElementById('salleTotal').textContent = '/ ' + salleTotal + ' prévues';
+  document.getElementById('salleBar').style.width = (salleTotal>0 ? Math.round(salleDone/salleTotal*100) : 0) + '%';
+  document.getElementById('kmDone').textContent = kmDone;
+  document.getElementById('kmBar').style.width = Math.min(100, Math.round(kmDone/kmTotal*100)) + '%';
+
+  // Blocs
+  const bData = [[b1d,b1t,'b1'],[b2d,b2t,'b2'],[b3d,b3t,'b3'],[b4d,b4t,'b4']];
+  bData.forEach(([d,t,id]) => {
+    const p = t>0 ? Math.round(d/t*100) : 0;
+    document.getElementById(id+'bar').style.width = p + '%';
+    document.getElementById(id+'pct').textContent = p + '% (' + d + '/' + t + ')';
+  });
+
+  // Recent done
+  const recent = recentItems.slice(-5).reverse();
+  const rdEl = document.getElementById('recentDone');
+  if (recent.length === 0) {
+    rdEl.innerHTML = '<div class="rd-empty">Aucune séance cochée pour l\'instant.<br>Va dans le Planning pour valider tes séances !</div>';
+  } else {
+    rdEl.innerHTML = recent.map(r => `<div class="rd-item">
+      <span class="rd-check">✓</span>
+      <span class="rd-name">${r.name}</span>
+      <span class="rd-when">S${r.week} · ${r.day}</span>
+    </div>`).join('');
+  }
+}
+
+// ══════════════════════════════════════════════
+// COUNTDOWN & CURRENT WEEK
+// ══════════════════════════════════════════════
+function updateCountdown() {
+  const raceDate = new Date('2026-10-18T08:00:00');
+  const now = new Date();
+  const days = Math.ceil((raceDate - now) / (1000*60*60*24));
+  document.getElementById('countdownDays').textContent = Math.max(0, days);
+
+  // Current week (plan starts ~April 28 2026)
+  const planStart = new Date('2026-04-28');
+  const daysSinceStart = Math.floor((now - planStart) / (1000*60*60*24));
+  const weekNum = Math.max(1, Math.min(25, Math.floor(daysSinceStart/7) + 1));
+  const wkData = WEEKS_DATA[Math.min(weekNum-1, WEEKS_DATA.length-1)];
+  document.getElementById('currentWeekNum').textContent = 'S' + String(weekNum).padStart(2,'0');
+  document.getElementById('currentBloc').textContent = 'Bloc ' + (wkData ? wkData.bloc : '—');
+
+  // Next sessions
+  const dayOfWeek = now.getDay(); // 0=Sun,1=Mon,...
+  const dayMap = {1:'LUN',2:'MAR',3:'MER',4:'JEU',5:'VEN',6:'SAM',0:'DIM'};
+  const todayKey = dayMap[dayOfWeek];
+  const dayIdx = DAYS_ORDER.indexOf(todayKey);
+
+  let nextDayLabel = 'Aujourd\'hui';
+  let nextEntries = [];
+
+  if (wkData) {
+    // Look for today then upcoming days
+    for (let offset = 0; offset < 7; offset++) {
+      const idx = (dayIdx + offset) % 7;
+      const dk = DAYS_ORDER[idx];
+      const entries = wkData.jours[dk] || [];
+      if (entries.length > 0) {
+        nextDayLabel = offset === 0 ? 'Aujourd\'hui — ' + DAYS_LABELS[dk] : DAYS_LABELS[dk] + (offset === 1 ? ' (demain)' : '');
+        nextEntries = entries;
+        break;
+      }
+    }
+  }
+
+  document.getElementById('nextDay').textContent = nextDayLabel;
+  const nsl = document.getElementById('nextSessionsList');
+  nsl.innerHTML = nextEntries.map(s => `<div class="next-s-item">
+    <div class="next-s-dot" style="background:${s.color}"></div>
+    <div class="next-s-name">${s.act}</div>
+    <div class="next-s-slot">${s.slot}</div>
+  </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+renderPlanning();
+updateStats();
+updateCountdown();
+
+// Open current week by default
+const planStart = new Date('2026-04-28');
+const daysSinceStart = Math.floor((new Date() - planStart) / (1000*60*60*24));
+const curWeekNum = Math.max(1, Math.min(25, Math.floor(daysSinceStart/7) + 1));
+const curWeekEl = document.getElementById(`week-${curWeekNum}`);
+if (curWeekEl) { curWeekEl.classList.add('open'); setTimeout(() => curWeekEl.scrollIntoView({behavior:'smooth',block:'start'}), 300); }
+</script>
+</body>
+</html>
